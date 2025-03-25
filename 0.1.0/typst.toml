@@ -1,0 +1,11 @@
+[package]
+name = "fau-thesis-template"
+version = "0.1.0"
+entrypoint = "lib.typ"
+authors = ["Lea Buchner"]
+license = "MIT-0"
+description = "A template created for FAU thesis writing in the computer science department."
+
+[template]
+path = "template"
+entrypoint = "main.typ"
