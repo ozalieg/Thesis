@@ -25,17 +25,16 @@
   set par(leading: 1em)
 
     // --- Cover ---
-    v(4mm)  // Top margin
-    align(center, text(font: fonts.sans, size: 2.2em, weight: "semibold", title))
+    v(4mm)
+    align(center, text(font: fonts.sans, size: 2em, weight: "semibold", title))
     v(1mm)
-
     align(center, text(font: fonts.sans, size: 1em, weight: "regular", upper(degree) + " THESIS"))
     v(1mm)
     align(center, text(font: fonts.sans, size: 1.5em, weight: "semibold", author))
     v(2mm)
     align(center, text(font: fonts.sans, size: 1em, weight: "regular", "Submitted on " + submissionDate))
     v(3mm)
-    align(center, image("./Logo_FAU_Sigil.png", width: 25%))  // Adjust logo size
+    align(center, image("./Logo_FAU_Sigil.png", width: 27%))
     v(7mm)
     align(center, text(font: fonts.sans, size: 1em, weight: "regular", "Friedrich-Alexander-Universität Erlangen-Nürnberg"))
     v(-2mm)
@@ -49,7 +48,7 @@
     v(-2mm)
     align(center, text(font: fonts.sans, size: 1em, weight: "regular", professor))
     v(5mm)
-    align(center, image("./Logo_FAU_TechFak_EN.png", width: 60%))  // Adjust second logo size
+    align(center, image("./Logo_FAU_TechFak_EN.png", width: 60%))
 
 
 }

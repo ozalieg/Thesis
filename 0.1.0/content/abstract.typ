@@ -1,0 +1,20 @@
+- Objective: Develop an automated system that generates JV pipeline templates from CSV files, facilitating scalable data processing without intermediate file storage.
+- Methodology: Parse CSV files to extract column headers, informing the structure of the JV templates.
+    - Utilize an intermediate JSON representation as a semantically rich, introspectable abstraction layer as well as for debugging purposes
+        before converting to the final JV format.
+    - Template generation was guided by the JV user documentation and informed by an internal reference (cars.jv), which served as a working example of valid JV constructs.
+- Implementation:
+  - Ensure the generated JV templates are valid and ready for deployment.
+  - Design the system to operate entirely in-memory, eliminating the need for temporary disk storage.
+- Evaluation:
+  - Validate the correctness and structural integrity of the generated JV templates across a dataset of up to 10,000 CSV files, ensuring adherence to the expected JV format and schema logic.
+  - Validate the correctness of the generated templates against the expected JV format.
+- LLM-Based Schema Detection (Evaluated Separately):
+   - Employ a locally hosted Large Language Model (LLM) to identify header rows in anomalous or irregular CSV files.
+   - Output the detected schema information in JSON format.
+   - Apply prompt engineering techniques to optimize the LLM's performance, avoiding the need for model fine-tuning.
+   - Evaluate various LLMs and parameter configurations to determine the most effective setup for schema detection.
+   - Conduct testing on a separate set of up to 10,000 CSV files to validate the LLM's effectiveness.
+- Conclusion:
+   - The project successfully demonstrates the feasibility of generating JV pipeline templates from CSV files, achieving the goal of a fully automated, in-memory solution based on a generalized and widely applicable schema.
+   - The separate evaluation of LLM-based schema detection provides insights into the capabilities of prompt-engineered models for handling irregular data structures.

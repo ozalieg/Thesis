@@ -1,10 +1,9 @@
 #import "/layout/fonts.typ": *
 
-#let abstract(
+#let billOfMaterials(
     body: "",
-    lang: "en"
  ) = {
-  let title = (en: "Abstract", de: "Zusammenfassung")
+  let title = ("Bill Of Materials")
 
   set page(
     margin: (left: 30mm, right: 30mm, top: 40mm, bottom: 40mm),
@@ -15,7 +14,6 @@
   set text(
     font: fonts.body,
     size: 11pt,
-    lang: lang
   )
 
   set par(
@@ -23,9 +21,9 @@
     justify: true
   )
 
-  // --- Abstract ---
-  v(20mm)  // Top margin
-      align(left, text(font: fonts.sans, size: 2.3em, weight: "semibold", title.at(lang)))
+  // --- Bill Of Materials ---
+  v(20mm)
+      align(left, text(font: fonts.sans, size: 2.3em, weight: "semibold", title))
   v(10mm)
         align(left, text(font: fonts.sans, size: 1em, weight: "regular", body))
     v(10mm)

@@ -6,7 +6,9 @@
 #import "/layout/fonts.typ": *
 #import "@preview/glossarium:0.5.4": make-glossary, register-glossary, print-glossary, gls, glspl
 #import "@preview/acrostiche:0.5.1": *
- #import "@preview/abbr:0.2.3"
+#import "@preview/abbr:0.2.3"
+#import "/layout/billOfMaterials.typ":*
+
 
 #let thesis(
   titleGerman: "",
@@ -18,9 +20,10 @@
   faculty: "",
   author: "",
   supervisor: "",
-  abstract_en: "",
-  abstract_de: "",
+  abstract_body: "",
+  introduction: "",
   is_print: false,
+  billOfMaterials_body: "",
   body,
 ) = {
 
@@ -50,7 +53,7 @@
 
   print_page_break(print: is_print)
 
-  abstract(lang: "en")[#abstract_en]
+  abstract(body: abstract_body, lang: "en")
   print_page_break(print: is_print)
   print_page_break(print: is_print)
 
@@ -98,7 +101,7 @@
 
   // --- Figures ---
   show figure: set text(size: 0.85em)
-
+    pagebreak(to: "odd", weak: false)
   // --- Table of Contents ---
   show outline.entry.where(level: 1): it => {
     v(15pt, weak: true)
@@ -115,8 +118,8 @@
 
 
   v(2.4fr)
-  pagebreak()
-  pagebreak()
+    pagebreak(to: "odd", weak: false)
+
 
     outline(
     title: {
@@ -136,24 +139,20 @@
 
     }, target: figure.where(kind: table))
 
-    pagebreak()
-    pagebreak()
-
-
-
-
+  pagebreak(to: "odd", weak: false)
 
     // Main body. Reset page numbering.
   counter(page).update(1)
   set page(numbering: "1")
-  set par(justify: true, first-line-indent: 2em)
 
+  set par(justify: true, first-line-indent: 2em)
   body
   pagebreak(to: "odd", weak: false)
     bibliography("/thesis.bib")
     
   pagebreak(to: "odd", weak: false)
   abbr.list(title:"Acronyms")
-
+set heading(numbering: none)
+    billOfMaterials(body: billOfMaterials_body)
 
 }
