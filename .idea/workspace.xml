@@ -4,18 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4e215e78-f47e-46da-8695-4b006284bb03" name="Changes" comment="test">
-      <change afterPath="$PROJECT_DIR$/0.1.0/Notes/ArchitectureDesignImplementation.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/content/Architecture.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/Architecture.typ" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/content/DesignAndImplementation.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/DesignAndImplementation.typ" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/content/LiteratureReview.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/LiteratureReview.typ" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/content/Requirements.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/Requirements.typ" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/lib.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/lib.typ" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/thesis.bib" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/thesis.bib" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/thesis.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/thesis.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/thesis.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/thesis.typ" afterDir="false" />
-    </list>
+    <list default="true" id="4e215e78-f47e-46da-8695-4b006284bb03" name="Changes" comment="test" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -197,7 +186,7 @@
       <workItem from="1742415127888" duration="9752000" />
       <workItem from="1742831782004" duration="1691000" />
       <workItem from="1746013696348" duration="30623000" />
-      <workItem from="1746989394545" duration="9236000" />
+      <workItem from="1746989394545" duration="9961000" />
     </task>
     <task id="LOCAL-00001" summary="test">
       <option name="closed" value="true" />
