@@ -1,6 +1,73 @@
-@book{bruegge2004object,
-	title = {Object Oriented Software Engineering Using UML, Patterns, and Java},
-	author = {Bruegge, Bernd and Dutoit, Allen H},
-	year = {2009},
-	publisher = {Prentice Hall}
+@article{PORNPRASIT2024107523,
+title = {Fine-tuning and prompt engineering for large language models-based code review automation},
+journal = {Information and Software Technology},
+volume = {175},
+pages = {107523},
+year = {2024},
+issn = {0950-5849},
+doi = {https://doi.org/10.1016/j.infsof.2024.107523},
+url = {https://www.sciencedirect.com/science/article/pii/S0950584924001289},
+author = {Chanathip Pornprasit and Chakkrit Tantithamthavorn},
+keywords = {Modern code review, Code review automation, Large language models, GPT-3.5, Few-shot learning, Persona},
+abstract = {Context:
+The rapid evolution of Large Language Models (LLMs) has sparked significant interest in leveraging their capabilities for automating code review processes. Prior studies often focus on developing LLMs for code review automation, yet require expensive resources, which is infeasible for organizations with limited budgets and resources. Thus, fine-tuning and prompt engineering are the two common approaches to leveraging LLMs for code review automation.
+Objective:
+We aim to investigate the performance of LLMs-based code review automation based on two contexts, i.e., when LLMs are leveraged by fine-tuning and prompting. Fine-tuning involves training the model on a specific code review dataset, while prompting involves providing explicit instructions to guide the model’s generation process without requiring a specific code review dataset.
+Methods:
+We leverage model fine-tuning and inference techniques (i.e., zero-shot learning, few-shot learning and persona) on LLMs-based code review automation. In total, we investigate 12 variations of two LLMs-based code review automation (i.e., GPT-3.5 and Magicoder), and compare them with the Guo et al.’s approach and three existing code review automation approaches (i.e., CodeReviewer, TufanoT5 and D-ACT).
+Results:
+The fine-tuning of GPT 3.5 with zero-shot learning helps GPT-3.5 to achieve 73.17%–74.23% higher EM than the Guo et al.’s approach. In addition, when GPT-3.5 is not fine-tuned, GPT-3.5 with few-shot learning achieves 46.38%–659.09% higher EM than GPT-3.5 with zero-shot learning.
+Conclusions:
+Based on our results, we recommend that (1) LLMs for code review automation should be fine-tuned to achieve the highest performance.; and (2) when data is not sufficient for model fine-tuning (e.g., a cold-start problem), few-shot learning without a persona should be used for LLMs for code review automation. Our findings contribute valuable insights into the practical recommendations and trade-offs associated with deploying LLMs for code review automation.}
+}
+@misc{shin2025promptengineeringfinetuningempirical,
+      title={Prompt Engineering or Fine-Tuning: An Empirical Assessment of LLMs for Code},
+      author={Jiho Shin and Clark Tang and Tahmineh Mohati and Maleknaz Nayebi and Song Wang and Hadi Hemmati},
+      year={2025},
+      eprint={2310.10508},
+      archivePrefix={arXiv},
+      primaryClass={cs.SE},
+      url={https://arxiv.org/abs/2310.10508},
+}
+@Article{make6010018,
+AUTHOR = {Trad, Fouad and Chehab, Ali},
+TITLE = {Prompt Engineering or Fine-Tuning? A Case Study on Phishing Detection with Large Language Models},
+JOURNAL = {Machine Learning and Knowledge Extraction},
+VOLUME = {6},
+YEAR = {2024},
+NUMBER = {1},
+PAGES = {367--384},
+URL = {https://www.mdpi.com/2504-4990/6/1/18},
+ISSN = {2504-4990},
+ABSTRACT = {Large Language Models (LLMs) are reshaping the landscape of Machine Learning (ML) application development. The emergence of versatile LLMs capable of undertaking a wide array of tasks has reduced the necessity for intensive human involvement in training and maintaining ML models. Despite these advancements, a pivotal question emerges: can these generalized models negate the need for task-specific models? This study addresses this question by comparing the effectiveness of LLMs in detecting phishing URLs when utilized with prompt-engineering techniques versus when fine-tuned. Notably, we explore multiple prompt-engineering strategies for phishing URL detection and apply them to two chat models, GPT-3.5-turbo and Claude 2. In this context, the maximum result achieved was an F1-score of 92.74% by using a test set of 1000 samples. Following this, we fine-tune a range of base LLMs, including GPT-2, Bloom, Baby LLaMA, and DistilGPT-2—all primarily developed for text generation—exclusively for phishing URL detection. The fine-tuning approach culminated in a peak performance, achieving an F1-score of 97.29% and an AUC of 99.56% on the same test set, thereby outperforming existing state-of-the-art methods. These results highlight that while LLMs harnessed through prompt engineering can expedite application development processes, achieving a decent performance, they are not as effective as dedicated, task-specific LLMs.},
+DOI = {10.3390/make6010018}
+}
+@Article{zhang2024comparison,
+AUTHOR = {Zhang X, Talukdar N, Vemulapalli S, Ahn S, Wang J, Meng H, Bin Murtaza SM, Leshchiner D, Dave AA, Joseph DF, Witteveen-Lane M, Chesla D, Zhou J, Chen B},
+TITLE = {Comparison of Prompt Engineering and Fine-Tuning Strategies in Large Language Models in the Classification of Clinical Notes},
+JOURNAL = {AMIA Joint Summits on Translational Science Proceedings},
+YEAR = {2024},
+DATE = {May 31},
+PAGES = {478--487},
+PMID = {38827053},
+PMCID = {PMC11141826}
+}
+@misc{addlesee2023multipartygoaltrackingllms,
+      title={Multi-party Goal Tracking with LLMs: Comparing Pre-training, Fine-tuning, and Prompt Engineering},
+      author={Angus Addlesee and Weronika Sieińska and Nancie Gunson and Daniel Hernández Garcia and Christian Dondrup and Oliver Lemon},
+      year={2023},
+      eprint={2308.15231},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2308.15231},
+}
+@Article{maharjan2024openmedlm,
+AUTHOR = {Maharjan, J., Garikipati, A., Singh, N.P. et al.},
+TITLE = {OpenMedLM: prompt engineering can out-perform fine-tuning in medical question-answering with open-source large language models.},
+JOURNAL = {Scientific Reports},
+VOLUME = {14},
+NUMBER = {1},
+PAGES = {14156},
+YEAR = {2024},
+DOI = {https://doi.org/10.1038/s41598-024-64827-6}
 }

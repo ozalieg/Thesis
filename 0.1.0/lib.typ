@@ -152,7 +152,9 @@
     
   pagebreak(to: "odd", weak: false)
   abbr.list(title:"Acronyms")
-set heading(numbering: none)
+    pagebreak(to: "odd", weak: false)
+
+    set heading(numbering: none)
     billOfMaterials(body: billOfMaterials_body)
 
 }

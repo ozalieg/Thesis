@@ -52,7 +52,7 @@
   ))
 #include "/content/Architecture.typ"
 #pagebreak(to: "odd", weak: false)
-#let DesignAndImplementation = [5 Design And Implementation]
+#let DesignAndImplementation = [5 Design and Implementation]
 
 #set page(
   header: align(
