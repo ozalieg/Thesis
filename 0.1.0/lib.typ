@@ -38,8 +38,8 @@
     faculty: faculty,
   )
 
-  print_page_break(print: is_print)
-  print_page_break(print: is_print)
+  pagebreak(to: "odd", weak: false)
+
 
   disclaimer(
     title: title,
@@ -47,15 +47,11 @@
     author: author,
     submissionDate: submissionDate,
   )
+  pagebreak(to: "odd", weak: false)
 
-  print_page_break(print: is_print)
-
-
-  print_page_break(print: is_print)
 
   abstract(body: abstract_body, lang: "en")
-  print_page_break(print: is_print)
-  print_page_break(print: is_print)
+
 
   set page(
     margin: (left: 30mm, right: 30mm, top: 60mm, bottom: 40mm),

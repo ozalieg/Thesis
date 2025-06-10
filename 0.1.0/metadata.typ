@@ -1,5 +1,5 @@
 #import "@preview/nth:1.0.1": *
-#let titleEnglish = "Automated Template Generation with LLM-Based Schema Inference"
+#let titleEnglish = "Jayvee Template Generation with LLM-Based Schema Inference"
 #let titleGerman = "..."
 #let degree = "Bachelor"
 #let supervisor = "Johannes Jablonski"

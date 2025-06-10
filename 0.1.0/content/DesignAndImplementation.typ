@@ -163,7 +163,7 @@ modular ETL (Extract-Transform-Load) pipeline generator and converter from CSV/U
 - Script architecture (vs package) for ease of use
 - CLI batch mode inferred from `.link` file extension
 
-== Header Row Inference Script
+== LLM Schema Inference
 === High-Level Design (HLD)
 
 A CSV schema-header row inference tool powered by a local OpenAI-compatible LLM and structured prompt engineering. Outputs are validated using pydantic models.
@@ -192,83 +192,84 @@ A CSV schema-header row inference tool powered by a local OpenAI-compatible LLM 
 Input → Preview Extraction → Prompt Generation → LLM Inference → JSON Extraction → Validation → Result Output
 === I/O Formats & Schemas
 
-Input:
-Raw CSV lines (first 20)
-Prompt:
-Few-shot prompt string with embedded examples
-Expected Output:
-{
-  "columnNameRow": 3,
-  "Explanation": "The row containing column headers follows non-pattern metadata rows."
-}
-Schema (Pydantic):
-Defined in header_pydantic.Header model
-Requires both columnNameRow (int) and Explanation (str)
+- Input:
+        Raw CSV lines (first 20)
+- Prompt: Few-shot prompt string with embedded examples
+- Output Schema:
+        {
+            "type": "object",
+            "properties": {
+                "columnNameRow": {"type": "integer"},
+                "Explanation":   {"type": "string"}
+            },
+            "required": ["columnNameRow", "Explanation"]
+        }
+
 === Technology Stack
 
-Language: Python 3.10+
-LLM Backend: Locally hosted GPT-compatible endpoint (OpenAI API interface)
-Prompt/Output:
-LangChain’s JsonOutputParser
-Pydantic for schema enforcement
-Tools Used:
-openai (via openai.Client)
-re, json, pydantic, langchain_core.output_parsers
-Rationale:
-Local model for privacy and speed
-Pydantic for strong validation
-LangChain to simplify structured extraction
+- Language: Python 3.10+
+- LLM Backend: Locally hosted GPT-compatible endpoint (OpenAI API interface)
+- Prompt/Output:
+    - LangChain’s JsonOutputParser
+    - Pydantic for schema enforcement
+- Tools Used:
+    - openai (via openai.Client)
+    - re, json, pydantic, langchain_core.output_parsers
+- Rationale:
+    - Local model for privacy and speed
+    - Pydantic for strong validation
+    - LangChain to simplify structured extraction
 === Error Handling
 
-All I/O and API calls are wrapped in exception handling
-Fallbacks:
-Missing JSON → raises ValueError
-Validation error → raises ValidationError with traceback
-Raw LLM output preserved for debugging
-Uses GUI log or console print for errors and responses
+- All I/O and API calls are wrapped in exception handling
+- Fallbacks:
+    - Missing JSON → raises ValueError
+    - Validation error → raises ValidationError with traceback
+    - Raw LLM output preserved for debugging
+    - Uses GUI log or console print for errors and responses
 == Implementation Details
 
 === Component Implementations
 
-CSV Loader
-load_csv_as_text(path) opens and reads lines using 'utf-8-sig' encoding
-Prompt Builder
-build_prompt(csv_20_lines) formats structured prompt with 3 few-shot examples
-Encodes example content, reference answers, and schema rules
-LLM Inference
-client.chat.completions.create() with:
-Model: "gpt-4"
-Role: "system" and "user"
-Format: {"type": "json_object"}
-Temperature: 0 (deterministic)
-Timeout: 60s
-JSON Parser
-extract_json(text) uses regex to pull JSON block from LLM output
-parser.parse(json_str) validates against schema
-Schema Validation
-Uses Header pydantic class
-Enforces int/string types and key presence
-Error Catching
-Print tracebacks and raw output
-Graceful degradation for debugging
+- CSV Loader
+    - load_csv_as_text(path) opens and reads lines using 'utf-8-sig' encoding
+- Prompt Builder
+    - build_prompt(csv_20_lines) formats structured prompt with 3 few-shot examples
+    - Encodes example content, reference answers, and schema rules
+- LLM Inference
+    - client.chat.completions.create() with:
+    - Model: "deepseek" /others to be evaluated
+    - Role: "system" and "user"
+    - Format: {"type": "json_object"}
+    - Temperature: 0 (deterministic)
+    - Timeout: 60s
+- JSON Parser
+    - extract_json(text) uses regex to pull JSON block from LLM output
+    - parser.parse(json_str) validates against schema
+- Schema Validation
+    - Uses Header pydantic class
+    - Enforces int/string types and key presence
+- Error Catching
+    - Print tracebacks and raw output
+    - Graceful degradation for debugging
 === Interfaces in Code
 
-Functions:
-load_csv_as_text(path)
-build_prompt(csv_str)
-extract_json(response_text)
-Model Usage:
-Header pydantic class
-LangChain JsonOutputParser(pydantic_object=Header)
-Data Contracts:
-Input: string of 20 lines
-Output: validated JSON object
+- Functions:
+    - load_csv_as_text(path)
+    - build_prompt(csv_str)
+    - extract_json(response_text)
+- Model Usage:
+    - Header pydantic class
+    - LangChain JsonOutputParser(pydantic_object=Header)
+- Data Contracts:
+    - Input: string of 20 lines
+    - Output: validated JSON object
 === Control & Data Flow
 
 Single-run flow with no persistent state
 Sequence:
-Load file
-Build prompt
-Call API
-Extract JSON
-Validate and print
+    - Load file
+    - Build prompt
+    - Call API
+    - Extract JSON
+    - Validate and print

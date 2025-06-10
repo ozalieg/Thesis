@@ -26,7 +26,7 @@
 
     // --- Cover ---
     v(4mm)
-    align(center, text(font: fonts.sans, size: 2em, weight: "semibold", title))
+    align(center, text(font: fonts.sans, size: 2.03em, weight: "semibold", title))
     v(1mm)
     align(center, text(font: fonts.sans, size: 1em, weight: "regular", upper(degree) + " THESIS"))
     v(1mm)
