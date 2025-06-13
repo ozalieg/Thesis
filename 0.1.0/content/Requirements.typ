@@ -1,36 +1,52 @@
 = Requirements
-== JV Template Generation
-=== Functional Requirements
 
-FR-T1: Generate a pipeline model template from CSV input.  \
-FR-T4: As an abstraction layer, first generate an intermediate .json, then convert it to .jv. \
-FR-T5: Ensure the generated model template is a valid .jv file. \
-FR-T7: Both local CSV-Files and remote URLs should be handled correctly. \
-FR-T8: Regular anomalies like leading white spaces/unnamed columns should be ignored. \
+The system developed in this thesis is guided by a set of functional and non-functional requirements,
+as well as explicit constraints and assumptions, structured around two primary components:
+Jayvee template generation and schema inference using local large language models (LLMs).
 
-=== Non-Functional Requirements
+== Jayvee Template Generation
 
-NFR-T2: Test template generation with up to 10,000 CSV files. \
+From a functional perspective, the template generation system is expected
+to create a Jayvee pipeline model template from structured input, specifically CSV files.
+To achieve abstraction and improve modularity, the system first generates
+an intermediate JSON representation, which is subsequently transformed into a .jv template file.
+It is imperative that the resulting output conforms to the Jayvee specification and is syntactically valid.
+The system must also support diverse data sources:
+it should correctly handle both local CSV files and those retrieved via remote URLs.
+Furthermore, it should be resilient to typical irregularities encountered in CSVs—such
+as leading white spaces and unnamed columns—which are to be ignored during parsing.
 
-=== Constraints & Assumptions
+On the non-functional side, the system’s scalability is assessed by its ability to process
+up to 10,000 CSV files in a single batch, ensuring performance under high-volume workloads.
 
-C-T1: Template structure must align with JV user documentation. \
+Certain assumptions and constraints govern the system's architecture: most notably,
+the structure of the generated templates must strictly adhere to the guidelines
+specified in the official Jayvee user documentation.
 
+== LLM-Based Schema Inference
 
-== LLM Schema Inference
-=== Functional Requirements
+The second major component addresses schema inference from malformed or anomalous CSV files
+using locally hosted large language models.
+Functionally, the system must identify the row that contains column headers,
+even in cases where the CSV structure is inconsistent or corrupted.
+The output of this schema inference is to be formatted strictly in JSON,
+aligning with the intermediate format used in the template generation process.
+To enhance model performance under zero-shot conditions,
+the approach incorporates prompt engineering techniques tailored to guide the model output.
+The evaluation phase involves experimenting with various models and parameter configurations
+to determine which combination yields the most accurate and reliable results.
 
-FR-L1: A locally hosted LLM should detect the row containing column names in malformed or anomalous CSVs.  \
-FR-L2: Output from the LLM should be in .json format. \
-FR-L3: Apply prompt engineering techniques to generate optimized output. \
-FR-L4: Evaluate various model and parameter combinations to determine best fit for the task. \
+From a non-functional standpoint, this component, like the template generation system,
+must also be capable of handling inference for up to 10,000 CSV files.
+This establishes a consistent benchmark across both systems for evaluating throughput and reliability.
 
-=== Non-Functional Requirements
+Finally, there are two core constraints underpinning this component.
+First, the language models must be hosted locally; no reliance on external APIs or cloud-based inference
+ services is permitted. Second, all output must be serialized in JSON format to maintain compatibility
+  with downstream components in the pipeline generation process.
 
-NFR-L1: Evaluate correct schema inference across up to 10,000 CSV files. \
-
-=== Constraints & Assumptions
-
-C-L1: The LLM must be hosted locally (no external API or cloud dependency). \
-C-L2: Output format is strictly JSON. \
+Together, these requirements define the operational scope and design principles of the systems
+developed in this thesis. Each module operates independently,
+allowing for targeted optimization and testing,
+while maintaining potential for future integration into a unified pipeline automation toolchain.
 

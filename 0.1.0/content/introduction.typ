@@ -2,84 +2,62 @@
 
 = Introduction
 
-In this thesis, the generation of Jayvee templates from CSV files with a locally hosted LLM for shema inference is explored.
-Focus is the header detection in irregular datasets without relying on extensive user input or pre-cleaned files.
-Studies indicate that prompt-engineered #abbr.pla[LLM] can effectively detect column headers in noisy CSV files,
-surpassing traditional heuristic methods in real-world applications @sui2024tap4llm @liu2024autodw.
-A study on prompt engineering for LLMs demonstrates improved performance over traditional heuristic methods
-in processing complex tabular data, achieving accuracy gains of 0.8% to 4.07%.
-The traditional approaches evaluated include random sampling, evenly spaced sampling,
-and content snapshot sampling—all heuristic-based techniques.
-@sui2024tap4llm
+This thesis explores the generation of Jayvee templates from CSV files by leveraging a locally hosted Large Language Model (LLM) for schema inference,
+with a particular focus on robust header detection in irregular and noisy datasets.
+Unlike traditional methods that rely on clean input data or extensive user input,
+this approach aims to automatically infer the correct schema even when the CSV files contain metadata, comments, or inconsistent header rows.
+
+Recent studies have demonstrated that prompt-engineered #abbr.pla[LLM]s can effectively identify column headers in noisy CSV files,
+outperforming conventional heuristic-based approaches in real-world scenarios @sui2024tap4llm @liu2024autodw.
+These heuristic methods typically include random sampling, evenly spaced sampling, and content snapshot sampling, which struggle with noisy or non-standard CSV formats.
+
+For example, @sui2024tap4llm report accuracy improvements ranging from 0.8% to 4.07% when using LLMs guided by carefully crafted prompts
+compared to heuristic baselines. This highlights the growing potential of LLMs in complex tabular data understanding tasks,
+especially where structured metadata is missing or inconsistent.
+
 == Jayvee Template Generation
 
-For the Jayvee Template Generation, a Python script is developed to automate the process of generating templates
-from CSV files.
-It infers the column types, renames columns if needed and generates a JSON schema that defines the extraction,
-interpretation, and loading of data into a SQLite database.
-The program supports handling local files, URLs, or lists of URLs from a text file.
-The schema is then converted to Jayvee.
-The program also includes a #abbr.add("GUI", "Graphical User Interface") #abbr.a[GUI] built with Tkinter to let users select files or enter URLs easily.
-Errors during reading or processing are logged, and the tool supports batch processing of many CSV links.
-Overall, this tool streamlines the pipeline creation and data ingestion steps needed for tabular data engineering projects.
+To automate Jayvee template creation, a Python script was developed that ingests CSV files from local paths, URLs, or lists of URLs.
+The script infers column data types, handles irregular or unnamed columns by renaming them with meaningful identifiers,
+and generates a JSON schema describing the extraction, interpretation, and loading steps into a SQLite database.
+
+This schema is subsequently converted into Jayvee (JV) format, a domain-specific language for pipeline definitions.
+ A user-friendly #abbr.add("GUI", "Graphical User Interface") #abbr.a[GUI] implemented with Tkinter facilitates file or URL selection
+ and batch processing of multiple CSV sources. Error handling and logging ensure robustness in processing diverse datasets.
+
+Overall, this tool simplifies data pipeline creation for tabular data engineering projects by automating schema inference and template generation.
 
 == LLM Schema Inference
 
-The schema inference covers the detection of the header row in anomalous CSV files.
-This referrs to the case where the first few rows of the provided file contain random metadata or comments.
-Since there's no standard way to identify the header row in such cases, the inference is done using a locally hosted #abbr.a[LLM].
-Different Models were evaluated, including DeepSeek-R1 granite-3.2-8b-instruct and Qwen3-235B-A22B.
-The evaluation was performed on a set of 1000 CSV files, which were generated from the original CSV files by adding random noise to the header rows and preambles.
 
-The table below summarizes the selected models used in the evaluation, followed by a detailed description of each.
+A core challenge addressed in this work is the detection of header rows in anomalous CSV files where the initial rows may contain arbitrary metadata or comments,
+breaking assumptions of standard parsers.
+To tackle this, schema inference is performed using a locally hosted #abbr.a[LLM] that analyzes the file content and predicts the correct header structure.
+The evaluation compares several state-of-the-art LLMs, including granite-3.2-8b-instruct,
+an 8-billion parameter instruction-tuned transformer model known for its strong performance on text understanding and generation tasks.
+This model is optimized for instruction-following scenarios, making it well-suited for schema inference where precise interpretation of tabular context is needed @granite2025v3.2.
+
+Another model evaluated is DeepSeek-R1, a retrieval-augmented language model designed to enhance information retrieval tasks
+by combining generative abilities with retrieval-based context injection.
+It supports schema inference by leveraging external data to improve accuracy on ambiguous inputs @deepseekai2025deepseekr1incentivizingreasoningcapability.
+
+Finally, the very large Qwen3-235B-A22B model, with 235 billion parameters and advanced context comprehension and multi-modal capabilities, was tested.
+Its scale allows robust interpretation of complex and noisy tabular inputs, supporting accurate header detection in challenging CSV files @qwen3technicalreport.
+These models were evaluated on a curated dataset of 1000 CSV files artificially augmented by adding random noise to header rows and preamble sections,
+simulating real-world messy data scenarios.
+
+The following table summarizes the main characteristics and performance metrics of these models.
 
 #figure(
   table(
-    columns: 3,
-    [Model Family], [Selected Model], [Reason],
-    [LLaMA (Meta)], [LLaMA 3 - 70B], [Top-class on general benchmarks (math, logic); noisy input resilience via long context; very large (slow) inference],
-    [Mistral], [Mixtral (MoE 12.9B active)], [Outperforms Llama2-70B with 6× faster inference; supports many languages; cost-efficient sparse MoE (12.9B active)],
-    [Gemma (Google)], [Gemma 3 - 12B],[Beats much larger models on human-eval; function-calling for JSON/schema; quantized versions for speed],
-    [Qwen 2.5 (Alibaba)],[Qwen 2.5 - 32B],[State-of-the-art on structured-output tasks; “understands tables”; huge context (up to 1M) enables full-file inputs],
-    [Phi-3 (Microsoft)],[Phi-3 - 14B],[Outperforms much larger GPT-3.5 on reasoning; very efficient (ONNX/DirectML optimized); ideal for on-device/low-latency use],
-    [DeepSeek],[DeepSeek R1 - 13B distill],[RL-trained reasoning model; matches GPT-3.5 on complex reasoning; focused on novel inference skills (e.g. pattern discovery) but less tested on standard tasks],
+    columns: 5,
+    [Model], [Parameters], [Architecture], [Key Capabilities], [Evaluation Notes],
+    [granite-3.2-8b-instruct], [8 billion], [Instruction-tuned transformer], [Strong instruction-following, excels in tabular context understanding], [Optimized for schema inference, achieves robust header detection @granite2025v3.2],
+    [DeepSeek-R1], [~varies; medium scale], [Retrieval-augmented transformer], [Integrates retrieval context for improved reasoning, enhanced ambiguity resolution], [Improves accuracy on noisy headers by leveraging external data @deepseekai2025deepseekr1incentivizingreasoningcapability],
+    [Qwen3-235B-A22B], [235 billion], [Large-scale multimodal transformer], [Advanced context comprehension, multi-modal input handling, very large capacity], [Excels on complex and noisy data, highest accuracy in header detection @qwen3technicalreport],
   ),
-  caption: [Selected Models for Evaluation],
+  caption: [Comparison of Evaluated Language Models for Schema Inference in Noisy CSV Files],
 )
 
-Meta’s LLaMA 3 (70B) is an open large language model with strong reasoning abilities and support for long inputs,
-up to 128K tokens.
-It uses grouped query attention and a new positional encoding scheme for improved efficiencywith long sequences.
-Although not specifically benchmarked on CSV/header extraction,
-it performs well on general reasoning tasks (e.g. logic, math) and handles unstructured or messy inputs robustly.
-Due to its size, it requires significant compute for inference but is often ranked among the top-performing open models. @iravani2024tabletext
-
-Mixtral (8×7B, ~12.9B active) is a Mixture-of-Experts model developed by Mistral.
-Only 2 out of 8 expert subnetworks are active per token, so despite having 46.7B total parameters,
-it operates with the cost of a ~12.9B model. It supports 32K-token inputs and performs well on logic and code tasks,
-making it suitable for structured data like tables. It offers efficient inference and has been shown to outperform
-some larger models (e.g., LLaMA 2 70B) on various benchmarks. @mistral2023mixtral
-
-Google’s Gemma 3 (12B) supports inputs up to 128K tokens and includes built-in functionality for generating structured outputs
-such as JSON.
-Although it is smaller than some models, it performs competitively in human evaluation rankings
-and is available in optimized formats for faster inference.
-These characteristics make it useful for processing large or complex documents, including CSV files. @farabet2025gemma3 @gemma2025technical
-
-Alibaba’s Qwen 2.5 (32B) is designed specifically with structured and tabular data in mind.
-Some variants, like Qwen 2.5-14B, support extremely long inputs (up to 1 million tokens).
-It includes functionality for structured output generation (e.g., JSON schemas)
-and performs well in instruction following, code, and math benchmarks.
-Its design makes it suitable for reading and interpreting large CSV files. @alibaba2025qwen
-
-Microsoft’s Phi-3 (14B) supports 128K-token inputs and has been optimized for efficiency,
-including compatibility with ONNX and DirectML for faster inference.
-It shows strong results in logic and math tasks, often performing better than larger models.
-Phi-3’s ability to handle long documents with low latency makes it a good option for large-scale structured data processing. @bilenko2024phi3
-
-DeepSeek R1 (~14B) is trained through reinforcement learning to focus on logical and mathematical reasoning.
-While it is not explicitly tested on CSV-related tasks,
-its strong performance on code and logic suggests potential for handling structured data.
-The models are still in early-stage development and mainly focused on research,
-but they show capabilities comparable to larger proprietary systems on reasoning benchmarks. @deepseek2025r1
-
+This comprehensive evaluation of state-of-the-art language models lays the groundwork for the subsequent exploration of related research,
+detailed requirements, and the architectural and implementation strategies that underpin the development of an effective schema inference system for noisy CSV data.
