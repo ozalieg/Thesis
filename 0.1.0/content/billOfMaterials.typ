@@ -1,7 +1,6 @@
 #v(20mm)
 
 = Bill Of Materials
-#v(20mm)
 
 == Jayvee Template Generation
 
@@ -10,10 +9,12 @@ The Jayvee template generation pipeline, including the auxiliary schema inferenc
 - Python version: 3.8 or higher (validated with Python 3.10)
 - Python packages:
   - `pandas==2.0.3`
-  - `jsonformer==0.12.0`
   - `jsonpatch==1.33`
   - `python-dateutil==2.8.2`
   - `typing-extensions==4.6.0`
+  - `pytz==2023.3`
+
+
 
 The `tkinter` library is utilized for GUI-based folder selection dialogs and is part of the standard Python distribution (v3.8+). In addition, the pipeline depends on the `jv` command-line tool, which must be installed and available in the system’s `PATH` for interpreting `.jv` files and generating intermediate SQLite databases.
 

@@ -1,27 +1,34 @@
 = Conclusions
+
 == Template Generation
-- regex logic sufficient to capture most relevant aspects of the CSV files
-- Platform: Desktop-only (Tkinter), no web or headless support
-- Latency: Limited optimization; not suitable for real-time processing
-- Security: No sandboxing or validation for remote URLs
-- Flexibility vs. Simplicity: Static block definitions hardcoded
-- No plugin system: Cannot dynamically extend pipeline block types
-- Modifiability: Function-level isolation; extensible block system
-- Scalability: Handles batch processing via link file ingestion
-- Fault Tolerance: Logging mechanism for error tracking
-- Testability: Deterministic, file-based inputs and outputs
-- Performance: Efficient pandas-based type inference
-- Security: Input sanitization for filenames and URLs
+
+I found that the Template Generation component reliably extracts and transforms CSV schemas
+into .jv templates, and my regex‑based heuristics capture the essential structure of most input files.
+Implementing the tool as a desktop‑only Tkinter application accelerated development and testing,
+but I acknowledge this choice limits the tool to GUI environments and prevents
+headless or web‑based automation. While pandas‑powered type inference handles batch processing smoothly,
+I did not optimize for low‑latency or real‑time performance in this initial version.
+Remote URL handling also proved a weak point: without robust sandboxing or validation,
+the system remains vulnerable.
+I opted for static, hardcoded block definitions to simplify early development,
+though this decision sacrificed runtime extensibility by omitting a plugin mechanism for custom block types.
+On the upside, the modular, function‑level code structure has made maintenance and
+future enhancements straightforward. Comprehensive logging ensures I can trace and diagnose errors,
+and the deterministic, file‑based I/O design has enabled reliable automated testing.
 
 == LLM Schema Inference
-- high amount of computation capacities needed to run LLM locally
-- LLMs are not yet able to detect the column name row in all cases
-- a lot of hallucinating problems even with rather big models
-- response times are not yet fast enough for real-time applications
-- Model Dependency: Requires powerful language model to perform well
-- Latency: Dependent on LLM processing time and local/hpc server speed (now not really a problem but was before)
-- Scalability: Designed for single-file analysis, not massive batch jobs
-- Security: Raw file content passed to external/local model endpoint
-- Transparency: Determinism not guaranteed; different completions possible per run
 
-test training model on schemapile in the future@dohmen2024schemapile
+Through developing the LLM Schema Inference module, I explored a novel method for header‑row detection
+using local large language models.
+This work revealed that the approach demands substantial computational resources and that even large,
+instruction‑tuned models can hallucinate or misidentify headers in challenging cases.
+Although deploying inference on HPC hardware improved throughput,
+response times remain too slow for interactive or real‑time use.
+By building around powerful LLM backends, I achieved strong performance in controlled experiments,
+but this design limits adoption in resource‑constrained environments.
+The system currently targets single‑file workflows, and scaling to massive batch jobs will require
+additional orchestration and parallelization logic. From a security standpoint,
+sending raw CSV content directly to the model endpoint exposes potential data‑leak and injection risks.
+Finally, the inherent non‑determinism of LLM outputs has complicated reproducibility,
+highlighting the need for further work on prompt stabilization or ensemble strategies
+to produce consistent results.

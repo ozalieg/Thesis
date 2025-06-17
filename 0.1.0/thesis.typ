@@ -78,5 +78,13 @@
     Conclusions
   ))
 #include "/content/Conclusions.typ"
+#pagebreak(to: "odd", weak: false)
+#let FutureWork = [8 Future Work]
 
+#set page(
+  header: align(
+    right + horizon,
+    FutureWork
+  ))
+#include "/content/FutureWork.typ"
 

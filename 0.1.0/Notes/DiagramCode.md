@@ -87,4 +87,167 @@ sequenceDiagram
     GUI->>GUI: finalize progress logs
 
 ```
+llm schema inference sequence diagram
+```mermaid
+sequenceDiagram
+    participant SLURM as run_vllm_models.sh
+    participant ModelServer as vLLM Model Server (api_server)
+    participant TestScript as test_find_header.py
+    participant HeaderScript as vllm_find_header.py
+    participant FileSystem as File System / Logs
 
+    Note over SLURM: Job Submission and Setup
+    SLURM->>SLURM: Setup environment, load modules, activate conda
+    SLURM->>FileSystem: Validate CSV_DIR and ground_truth.json exist
+    SLURM->>FileSystem: Create model_logs directory
+    SLURM->>SLURM: Set OPENAI_API_KEY
+
+    loop For each model in MODEL_IDS
+        SLURM->>ModelServer: Launch model API server (background process)
+        ModelServer->>SLURM: Server listens on port, logs output
+        SLURM->>SLURM: Poll until port is open or timeout
+
+        alt Server started successfully
+            SLURM->>SLURM: Set OPENAI_API_BASE env var (e.g. http://localhost:PORT)
+            SLURM->>TestScript: Run test_find_header.py with MODEL_NAME argument
+
+            Note over TestScript: Evaluates CSVs by running HeaderScript subprocess
+            loop For each CSV file in CSV_DIR
+                TestScript->>HeaderScript: Run vllm_find_header.py <csv_path> <model_name> (subprocess)
+                HeaderScript->>FileSystem: Read CSV file lines
+                HeaderScript->>ModelServer: Query vLLM local model with prompt
+                ModelServer->>HeaderScript: Return JSON response
+                HeaderScript->>TestScript: Output JSON result to stdout
+                TestScript->>TestScript: Parse JSON, compare with ground truth
+            end
+
+            TestScript->>FileSystem: Write evaluation_results.json, evaluation_summary.json, evaluation.log
+            TestScript->>SLURM: Return control when finished
+
+            SLURM->>ModelServer: Kill model server process
+        else Server failed to start
+            SLURM->>SLURM: Log error and cleanup
+        end
+    end
+    SLURM->>SLURM: Echo "All models completed."
+```
+TempGen Test Architecture Diagram
+```mermaid
+flowchart LR
+ subgraph SLURM["SLURM"]
+        SJ["SLURM Job Script"]
+  end
+ subgraph Harness["Harness"]
+        TH["Test Harness"]
+  end
+ subgraph JV_CLI["JV CLI"]
+        JG["JV Generator CLI - 
+        process CSV → .jv"]
+  end
+ subgraph JV_Exec["JV Execution"]
+        JE["JV Executor - 
+        run .jv → .sqlite"]
+  end
+ subgraph Artifacts["Artifacts"]
+        TF["Template Files - .jv"]
+        DB["SQLite Databases - .sqlite"]
+  end
+ subgraph Logs["Logs"]
+        CL["Central Logs - errors & metrics"]
+  end
+    SJ --> TH
+    TH --> JG & JE & CL
+    JG --> TF & CL
+    JE --> DB & CL
+
+    style SJ color:#424242, stroke:#AA00FF
+    style TH stroke:#AA00FF,color:#424242
+    style JG stroke:#AA00FF,color:#424242 
+    style JE stroke:#AA00FF,color:#424242
+    style TF stroke:#AA00FF,color:#424242 
+    style DB stroke:#AA00FF,color:#424242 
+    style CL stroke:#AA00FF
+    style Harness stroke:#E1BEE7,color:#616161    
+    style JV_CLI stroke:#E1BEE7,color:#616161    
+    style JV_Exec stroke:#E1BEE7,color:#616161  
+    style Logs stroke:#E1BEE7,color:#616161  
+    style Artifacts stroke:#E1BEE7,color:#616161  
+    style SLURM color:#616161    ,stroke:#E1BEE7
+    linkStyle 0 stroke:#757575,fill:none
+    linkStyle 1 stroke:#757575,fill:none
+    linkStyle 2 stroke:#757575,fill:none
+    linkStyle 3 stroke:#757575,fill:none
+    linkStyle 4 stroke:#757575,fill:none
+    linkStyle 5 stroke:#757575,fill:none
+    linkStyle 7 stroke:#757575,fill:none
+
+
+```
+
+Schema Inference Test Architecture Diagram
+```mermaid
+flowchart LR
+  subgraph SLURM["SLURM"]
+    SJ["SLURM Job Script - model launcher & orchestrator"]
+  end
+
+  subgraph Harness["Evaluation Harness"]
+    EH["test_find_header.py - evaluation runner"]
+  end
+
+  subgraph Models["Model API Servers"]
+    MS1["deepseek-vl2-small (via vLLM API server)"]
+  end
+
+  subgraph Evaluation["Evaluation & Metrics"]
+    GT["Ground Truth - ground_truth.json"]
+    ER["evaluation_results.json"]
+    ES["evaluation_summary.json"]
+    EL["evaluation.log"]
+  end
+
+  subgraph Inputs["Test Artifacts"]
+    CSV["Noisy CSVs - 10k files"]
+    KEY["openai_key.txt"]
+  end
+
+  subgraph Scripts["Code"]
+    FH["vllm_find_header.py"]
+  end
+
+  SJ --> MS1
+  SJ --> EH
+  SJ --> KEY
+  SJ --> GT
+  SJ --> CSV
+
+  EH --> MS1
+  EH --> CSV
+  EH --> FH
+  EH --> GT
+  EH --> ER
+  EH --> ES
+  EH --> EL
+
+  FH --> MS1
+
+  style SJ stroke:#AA00FF,color:#424242
+  style EH stroke:#AA00FF,color:#424242
+  style MS1 stroke:#AA00FF,color:#424242
+  style GT stroke:#AA00FF,color:#424242
+  style ER stroke:#AA00FF,color:#424242
+  style ES stroke:#AA00FF,color:#424242
+  style EL stroke:#AA00FF,color:#424242
+  style CSV stroke:#AA00FF,color:#424242
+  style FH stroke:#AA00FF,color:#424242
+  style KEY stroke:#AA00FF,color:#424242
+
+  style SLURM stroke:#E1BEE7,color:#616161
+  style Harness stroke:#E1BEE7,color:#616161
+  style Models stroke:#E1BEE7,color:#616161
+  style Evaluation stroke:#E1BEE7,color:#616161
+  style Inputs stroke:#E1BEE7,color:#616161
+  style Scripts stroke:#E1BEE7,color:#616161
+
+  linkStyle default stroke:#757575,fill:none
+```
