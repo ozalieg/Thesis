@@ -2,33 +2,15 @@
 
 == Template Generation
 
-I found that the Template Generation component reliably extracts and transforms CSV schemas
-into .jv templates, and my regex‑based heuristics capture the essential structure of most input files.
-Implementing the tool as a desktop‑only Tkinter application accelerated development and testing,
-but I acknowledge this choice limits the tool to GUI environments and prevents
-headless or web‑based automation. While pandas‑powered type inference handles batch processing smoothly,
-I did not optimize for low‑latency or real‑time performance in this initial version.
-Remote URL handling also proved a weak point: without robust sandboxing or validation,
-the system remains vulnerable.
-I opted for static, hardcoded block definitions to simplify early development,
-though this decision sacrificed runtime extensibility by omitting a plugin mechanism for custom block types.
-On the upside, the modular, function‑level code structure has made maintenance and
-future enhancements straightforward. Comprehensive logging ensures I can trace and diagnose errors,
-and the deterministic, file‑based I/O design has enabled reliable automated testing.
+The Jayvee template generation pipeline has matured into a robust, modular system capable of transforming diverse and often messy CSV schemas into executable Jayveepipelines at scale. The updated batch-driven architecture, powered by a SLURM-managed HPC setup, successfully processed 10,000 files without manual intervention and maintained sub-second generation latency per file.
 
+Key robustness features—such as fallback renaming of unnamed columns, whitespace trimming, quoted field handling, and consistent CamelCase pipeline naming—ensure that input irregularities do not propagate downstream. Data type inference via pandas provides effective generalization across boolean, numeric, and text types, though datetime normalization remains a known limitation.
+
+The system’s deterministic, file-based I/O and centralized logging strategy has enabled full automation, observability, and testability. While complex cases like multilingual headers and semantic null handling are not yet supported, the current implementation offers a strong foundation for scaling and iterative enhancement. Future iterations could integrate plugin support for custom block types and improve remote URL handling for better security and extensibility.
 == LLM Schema Inference
 
-Through developing the LLM Schema Inference module, I explored a novel method for header‑row detection
-using local large language models.
-This work revealed that the approach demands substantial computational resources and that even large,
-instruction‑tuned models can hallucinate or misidentify headers in challenging cases.
-Although deploying inference on HPC hardware improved throughput,
-response times remain too slow for interactive or real‑time use.
-By building around powerful LLM backends, I achieved strong performance in controlled experiments,
-but this design limits adoption in resource‑constrained environments.
-The system currently targets single‑file workflows, and scaling to massive batch jobs will require
-additional orchestration and parallelization logic. From a security standpoint,
-sending raw CSV content directly to the model endpoint exposes potential data‑leak and injection risks.
-Finally, the inherent non‑determinism of LLM outputs has complicated reproducibility,
-highlighting the need for further work on prompt stabilization or ensemble strategies
-to produce consistent results.
+The LLM-based schema inference module demonstrates the viability of using transformer models for detecting CSV header rows under real-world obfuscation. Leveraging a synthetic benchmark of 10,000 noisy, variably structured files, the evaluation framework revealed critical differences in accuracy, robustness, and reasoning depth across models.
+
+The instruction-tuned DeepSeek-Coder model performed best, highlighting the benefits of task-specific tuning. Smaller or less specialized models, such as Qwen3-4B and CodeLlama-7B-Instruct, showed sensitivity to superficial token patterns and struggled with hybrid or metadata-laden preambles. These findings affirm that header detection is a semantic task requiring more than delimiter detection or capitalization heuristics.
+
+The evaluation harness—modular, traceable, and SLURM-parallelized—supports reproducible benchmarking and detailed error analysis. However, reliance on local GPU-backed inference constrains scalability and limits accessibility in low-resource settings. Furthermore, the non-determinism of generative outputs complicates reproducibility, suggesting the value of prompt freezing, scoring ensembles, or hybrid approaches combining LLMs with regex-based heuristics.

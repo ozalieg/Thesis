@@ -12,7 +12,7 @@
     faculty: faculty,
     professorship: professorship,
     professor: professor,
-    submissionDate: "2 June 2025",
+    submissionDate: submissionDate,
     abstract_body: include "/content/abstract.typ",
     billOfMaterials_body: include "/content/billOfMaterials.typ",
 )

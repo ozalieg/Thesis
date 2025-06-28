@@ -1,8 +1,10 @@
+#import "@preview/abbr:0.2.3"
+
 = Requirements
 
 The system developed in this thesis is guided by a set of functional and non-functional requirements,
 as well as explicit constraints and assumptions, structured around two primary components:
-Jayvee template generation and schema inference using local large language models (LLMs).
+Jayvee template generation and schema inference using local #abbr.pla[LLM].
 
 == Jayvee Template Generation
 
@@ -29,21 +31,20 @@ The second major component addresses schema inference from malformed or anomalou
 using locally hosted large language models.
 Functionally, the system must identify the row that contains column headers,
 even in cases where the CSV structure is inconsistent or corrupted.
-The output of this schema inference is to be formatted strictly in JSON,
-aligning with the intermediate format used in the template generation process.
+The output of this schema inference is to be formatted strictly in JSON
+to make it parsable by downstream components.
 To enhance model performance under zero-shot conditions,
 the approach incorporates prompt engineering techniques tailored to guide the model output.
-The evaluation phase involves experimenting with various models and parameter configurations
-to determine which combination yields the most accurate and reliable results.
 
 From a non-functional standpoint, this component, like the template generation system,
 must also be capable of handling inference for up to 10,000 CSV files.
-This establishes a consistent benchmark across both systems for evaluating throughput and reliability.
+This establishes a consistent benchmark across both systems for evaluating result quality and reliability.
+Evaluation is grounded on JSON-labeled synthetic benchmarks with controlled noise and ambiguity.
 
 Finally, there are two core constraints underpinning this component.
 First, the language models must be hosted locally; no reliance on external APIs or cloud-based inference
- services is permitted. Second, all output must be serialized in JSON format to maintain compatibility
-  with downstream components in the pipeline generation process.
+services is permitted. Second, all output must be serialized in JSON format to maintain compatibility
+with downstream components in the pipeline generation process.
 
 Together, these requirements define the operational scope and design principles of the systems
 developed in this thesis. Each module operates independently,

@@ -3,20 +3,25 @@
 
 = Implementation
 
-== JV Template Generation Script
+This section describes how each subsystem is realized in code, mapping design to concrete Python scripts and workflows.
+
+== Jayvee Template Generation
+
+The Jayvee Template Generation Script transforms CSV inputs into Jayvee pipeline templates via a layered ETL process, all driven from the command line.
 
 === Design Overview
 
-The JV Template Generation Script implements a modular #abbr.add("ETL", "Ectract-Transform-Load") #abbr.a[ETL] pipeline
-for transforming raw CSV datasets—whether sourced locally or remotely—into formalized
-data extraction templates. These templates are expressed in both JSON and .jv format,
-enabling downstream processing in structured data integration workflows.
-The system adopts a layered architecture with clear data flow between its input management,
-schema inference, pipeline construction, and file output stages.
-This separation of concerns enables modular development, testing, and maintenance,
-while the GUI wrapper ensures usability for technical and non-technical users alike.
+The Jayvee Template Generation Script implements a
+modular #abbr.add("ETL", "Extract-Transform-Load") #abbr.a[ETL] pipeline
+for transforming raw CSV datasets—whether sourced locally or remotely—into
+formalized data extraction templates.
+These templates are expressed in both JSON and Jayvee format,
+ enabling downstream processing in structured data integration workflows,
+such as automated database population, analytical pipeline configuration, or data quality validation.
 
-The pipeline begins with the user initiating an operation via the GUI,
+The system adopts a layered architecture with clear data flow between its input management, schema inference, pipeline construction, and file output stages. This separation of concerns enables modular development, testing, and maintenance.
+
+The system begins with the user initiating an operation via #abbr.a[CLI],
 which supports three input modes: single file selection, direct URL input,
 or batch processing from a file of links.
 The selected source is passed to an input handling component, which normalizes file or URL data,
@@ -26,16 +31,16 @@ using both heuristics and fallback logic.
 The normalized schema is then passed to the pipeline generator, which constructs a JSON representation
 of an extraction pipeline composed of extractor, interpreter, and loader blocks,
 along with associated metadata and identifiers.
-Optionally, the generated pipeline is saved as a JSON file, and is always converted to a .jv text file.
+Optionally, the generated pipeline is saved as a JSON file, and is always converted and saved in Jayvee.
 A dedicated set of naming utilities ensures identifier consistency and
 filesystem-safe naming conventions throughout.
+
+
 === Components Responsibilities
 
 The system is organized around six loosely coupled components:
 
-The GUI Component presents the user interface, handling interactions such as file selection,
-URL input, and links-file browsing. It also locks controls during execution and appends real-time logs
-to a progress window.
+The #abbr.a[CLI] Component presents the user interface, handling interactions such as file selection, URL input, and links-file browsing. A links file refers to a plain-text file containing a list of remote data sources (e.g., CSV URLs), allowing users to batch-load and preview multiple resources through the interface. The #abbr.a[CLI] enables users to browse these entries interactively and choose specific links for processing. It also locks controls during execution and appends real-time logs to a progress window.
 
 The Input Management Component processes the chosen data source,
 loading the file from disk or fetching it via HTTP.
@@ -43,28 +48,60 @@ In the case of batch input, it iterates over a links file and handles each entry
 
 The Schema Inference Component reads the CSV data using Pandas and generates a structured schema.
 It identifies unnamed columns, assigns default labels and types, and calls type-mapping utilities
-to map Pandas dtypes into canonical categories: text, integer, decimal, or boolean.
+to map Pandas dtypes to Jayvee datatypes: text, integer, decimal, or boolean.
 
 The Pipeline Generation Component receives the normalized schema and
 constructs a JSON pipeline specification.
 It uses the original filename or URL to generate internal names and metadata.
 If columns were renamed, it additionally maps column indices to spreadsheet-style labels.
 
-The JSON & JV Writer Component saves the pipeline structure as a JSON file (when enabled),
-and always writes the corresponding .jv template.
+The JSON & Jayvee Writer Component saves the pipeline structure as a JSON file (when enabled),
+and always writes the corresponding Jayvee template.
 It ensures consistent naming and manages file paths and directories.
 
 The Naming/Path Utilities Component supports the above stages with functions for sanitizing filenames,
 converting names to CamelCase, generating valid identifiers, and labeling columns by index.
+CamelCase naming for pipeline and block identifiers is derived from filenames
+or URLs using a utility function.
+Spreadsheet-style column labels (A1, B1, ...) are generated for unnamed headers
+via a separate index-mapping utility.
 
+=== Edge Cases in CSV Schema Inference
+
+During the implementation of the Jayvee template generation system,
+I focused on several key edge cases to ensure robustness in CSV template generation.
+Columns with missing or default "Unnamed" headers are automatically renamed
+based on the first data value in each column—for example,
+renamed to "col_name" if the first value is a string, or "col_value"
+if numeric—so that every column remains addressable.
+Leading and trailing whitespaces around column headers are removed to prevent mismatches during processing.
+The CSV parser respects quoted fields containing delimiters by using appropriate options such
+as a quote character and skipping initial spaces, adhering to common CSV dialect conventions
+rather than simply splitting on commas.
+Column data types are inferred from pandas’ dtype detection and mapped
+Jayvee datatypes including boolean, integer, decimal, and text; notably,
+datetime types are coerced to text to handle their variability.
+When column headers are renamed, the pipeline schema dynamically includes an intermediate
+step to write these corrected headers, ensuring downstream components consume consistent column names.
+Boolean types are inferred from pandas native detection,
+although explicit normalization of different boolean representations was not implemented beyond this.
+Additionally, the system normalizes file names extracted from file paths or URLs into
+CamelCase for consistent naming of pipelines and processing blocks.
+Throughout processing, errors during CSV reading or JSON file saving are logged
+with timestamps to facilitate troubleshooting without interrupting the overall workflow.
+While more complex edge cases such as Unicode normalization for multilingual headers,
+flexible date format coercion, and semantic handling of null values were identified as challenges,
+they remain unimplemented in the current system iteration.
 
 === Data Flow and Intermediate Formats
 
 The system accepts as input either local CSV files or remote URLs,
 including batch-mode processing from a newline-delimited links file.
-The intermediate schema is represented as a list of {name, type} objects,
-which is transformed into a pipeline JSON document with blocks, pipes, and supporting metadata.
-The final .jv output format is a human-readable, line-based representation of the extraction template.
+The intermediate schema is transformed into a JSON pipeline description.
+When the CREATE_JSON environment flag is enabled,
+this JSON is persisted to disk alongside the default Jayvee output.
+The final Jayvee output format is a human-readable, line-based representation of the extraction template.
+
 
 === Technology Stack
 
@@ -73,33 +110,37 @@ including batch-mode processing from a newline-delimited links file.
 The intermediate schema is represented as a list of {name, type} objects,
 which is transformed into a pipeline JSON document with blocks, pipes,
 and supporting metadata.
-The final .jv output format is a human-readable, line-based representation of the extraction template.
+The final Jayvee output format is a human-readable, line-based representation of the extraction template.
 
 === Error Handling
 
 Input boundaries are actively validated.
-Missing files, broken URLs, or malformed links trigger GUI warnings and are logged to disk.
+Missing files, broken URLs, or malformed links trigger #abbr.a[GUI] warnings and are logged to disk.
 Defaulting behavior in the schema inference stage ensures that unknown or unnamed columns
 are still incorporated, using generic labels and default types.
-Failures are logged with stack traces in the backend and user-friendly summaries in the GUI.
+All critical errors, including malformed inputs or I/O failures,
+are logged to a centralized `error_log.txt`.
+Structured error reporting avoids stack trace noise and supports batch evaluation.
+#abbr.a[GUI] alerts present user-friendly messages while the #abbr.a[CLI] remains quiet unless run interactively.
+
 
 === Implementation Details
 
 Each component is implemented as a pure Python function or class that communicates
-via in-memory data structures. The GUI uses standard file and dialog boxes to capture user input,
+via in-memory data structures. The #abbr.a[GUI] uses standard file and dialog boxes to capture user input,
 disabling interactions while tasks are running and re-enabling them when complete.
 Input handling selects the appropriate loading mechanism—open() for local files,
 urllib.request.urlopen() for remote sources—and supports batch iteration over links files.
 
 Schema inference is performed via pd.read_csv() followed by column-level inspection.
 Unnamed or ambiguous columns are labeled generically and assigned a fallback type of "text".
-A helper function maps Pandas-inferred dtypes to the restricted set of canonical types.
+A helper function maps Pandas-inferred dtypes to the restricted set of Jayvee types.
 
 Pipeline generation constructs a hierarchical structure of extractor and interpreter blocks,
 automatically embedding metadata such as file name and table name. Naming utilities like
 to_camel_case() and column_index_to_label() are used to produce valid and readable identifiers.
 
-The final stage involves optional JSON serialization and always produces a .jv output file.
+The final stage involves optional JSON serialization and always produces a Jayvee output file.
 The writing component creates directories if needed and generates filenames derived
 from the original data source. Sanitization ensures compatibility across platforms.
 
@@ -108,16 +149,16 @@ illustrating the order and nature of interactions between user interface, core l
 and file writing subsystems:
 
 #figure(
-image("./TempGen_Seq.png", width: 143%),
-caption: [Sequence Diagram for Jayvee Template Generation],
+image("./SequenceDiagram_TempGen.png", width: 143%),
+caption: [Sequence Diagram - Jayvee Template Generation],
 ) <sequence_diagram_tempgen>
 
 The sequence diagram above delineates the end‑to‑end implementation workflow
-of the JV Template Generation Script, tracing each interaction from the moment a user initiates
-the process through to the successful creation of a .jv template.
-Upon clicking “Select CSV,” “Enter URL,” or “Select Links File,” the GUI component immediately
+of the Jayvee Template Generation Script, tracing each interaction from the moment a user initiates
+the process through to the successful creation of a Jayvee template.
+Upon clicking “Select CSV,” “Enter URL,” or “Select Links File,” the #abbr.a[GUI] component immediately
 locks the interface and begins logging progress to prevent conflicting inputs during execution.
-In the case of a single file or direct URL, the GUI delegates control to the Input Management module,
+In the case of a single file or direct URL, the #abbr.a[GUI] delegates control to the Input Management module,
 which either prompts for a file or accepts the URL before normalizing and processing the data source.
  If a links file is chosen, the Input Management module reads each link in turn, invoking
  the same processing routine for every entry in the batch.
@@ -125,170 +166,88 @@ which either prompts for a file or accepts the URL before normalizing and proces
 Within the process_file_or_url operation, control shifts to the Schema Inference component,
 which inspects the first 20 lines of the CSV to infer column types, consulting the Naming/Path Utilities
 to map Pandas data types to canonical categories. With the inferred column types in hand,
-the Pipeline Generation component assembles a JSON schema for the ETL pipeline, again leveraging
+the Pipeline Generation component assembles a JSON schema for the #abbr.a[ETL] pipeline, again leveraging
 the naming utilities to generate valid identifiers—extracting and CamelCasing file names, parsing URLs,
 and computing spreadsheet‑style column labels for any renamed headers.
-Should JSON output be enabled via the CREATE_JSON flag, the JSON & JV Writer first persists
+Should JSON output be enabled via the CREATE_JSON flag, the JSON & Jayvee Writer first persists
 the intermediate schema to disk; regardless, it then converts the JSON representation
-into the final .jv format, sanitizing all names and writing the template file.
-Finally, control returns to the GUI, which unlocks the user interface and completes the progress logs,
+into the final Jayvee format, sanitizing all names and writing the template file.
+Finally, control returns to the #abbr.a[GUI], which unlocks the user interface and completes the progress logs,
 signaling that the template generation cycle has concluded cleanly and transparently.
 
+An auxiliary evaluation script, test_pipeline_generation.py, supports batch testing and performance profiling. It ingests CSVs from a directory, invokes jv_template_generation.py as a subprocess, verifies generation of Jayvee templates, and executes them via the Jayvee #abbr.a[CLI] to produce SQLite outputs. Metrics such as execution time, return codes, and output file status are logged centrally. The script supports parameterization via #abbr.a[CLI] flags for parallelism (--parallel) and sub-sampling (--every-nth).
+
+
 == LLM Schema Inference
+
+This section details the offline, Slurm-driven pipeline for using LLMs to infer CSV header rows at scale.
+
 === Design Overview
 
-This part of the system addresses the challenge of detecting the header row in arbitrary CSV files
-by leveraging a locally hosted, OpenAI-compatible #abbr.a[LLM].
-The approach is grounded in few-shot prompt engineering,
-where the model is exposed to multiple examples of CSV fragments and their corresponding annotations,
-enabling it to generalize to unseen files. Structured output is enforced through schema validation
-using Pydantic models, and the entire interaction with the model is managed locally
-to preserve privacy and optimize inference speed. The architecture focuses on robustness,
-interpretability, and modularity, allowing each stage—from CSV ingestion to LLM interaction
- and output validation—to be independently tested and debugged.
+The LLM-based schema inference subsystem addresses the task of identifying the header row
+in noisy or ambiguous CSV files using an autoregressive transformer model executed entirely offline.
+The system is designed for scale, repeatability, and modularity,
+enabling benchmarking across multiple models on large input corpora without internet access
+or server dependencies.
 
-=== Components Responsibilities
+At its core, the system processes each CSV file using a standalone script (find_header.py)
+that prepares a structured prompt using few-shot examples, executes inference via a Hugging Face model,
+and returns a machine-readable JSON output. The workflow is orchestrated through Slurm job arrays
+(parallel_evaluation.sh), where each task handles one model independently.
+Evaluation results are serialized to disk, allowing partial recovery, reproducibility, and aggregate analysis.
 
-The process begins with a CSV Loader that handles the opening and preprocessing of input files.
-To ensure broad compatibility, especially with files exported from software like Excel,
-the loader reads the input using UTF-8 with a Byte Order Mark (utf-8-sig).
-It extracts the first 20 lines of the file, which are used as the context window for inference.
-This snapshot captures enough structure and noise for the LLM to deduce
-where the actual header row is located.
+This architecture replaces earlier API-driven designs with fully #abbr.a[CLI]-based workflows that are portable and privacy-preserving. Inference is conducted directly within the Python runtime using locally stored model weights. All outputs conform to a strict schema for downstream compatibility, and each stage is instrumented with structured logging to support debugging, validation, and performance tracking.
 
-Next, a Prompt Builder constructs the input that will be sent to the #abbr.a[LLM].
-This prompt is composed of three few-shot examples,
-each consisting of a 20-line CSV snippet followed by a JSON-formatted answer
-that identifies the correct header line and explains the rationale.
-The prompt ends with the actual file content to be analyzed.
-Careful formatting of the prompt, including clear separation of examples
- and a reiteration of the expected schema, guides the model towards producing consistent and valid outputs.
+=== Component Responsibilities
 
-Inference is performed through a local LLM backend that adheres to the OpenAI API specification.
-This compatibility allows the use of standard tools like openai.Client or vllm.LLM,
-while benefiting from local execution in terms of speed and data governance.
-The inference call constructs messages with distinct system and user roles
-and applies strict parameters such as a temperature of zero to encourage deterministic behavior.
-Token limits and timeouts are configured to handle large prompts without risking model instability.
+The evaluation process begins by reading the first 20 lines of each CSV file. This sampling strategy captures enough structural variation and noise to provide meaningful context while keeping the prompt size within model token limits. Once read, the snippet is passed to find_header.py, which appends it to a few-shot prompt template consisting of three curated examples. The prompt is crafted to follow a consistent and readable layout, with newline padding and clearly delimited JSON answers.
 
-Once a response is received, a two-stage parsing process is initiated.
-The first stage employs a regular expression to extract the first valid JSON block from the response,
-accounting for potential extraneous text generated by the model.
-This block is then passed to LangChain’s JsonOutputParser,
-which works in tandem with a Pydantic model (Header) that specifies the expected structure:
-an integer field for columnNameRow and a string field for Explanation.
-This ensures that even if the LLM generates syntactically correct but semantically invalid content,
-it will be flagged during validation.
+Inference is executed locally using the Hugging Face transformers library. The model and tokenizer are loaded directly from disk using standard APIs such as AutoModelForCausalLM and AutoTokenizer. To enforce determinism, the decoding parameters are fixed: the temperature is set to zero, maximum token limits are specified, and if applicable, a stop sequence is used to terminate generation cleanly. These settings ensure consistent outputs regardless of the underlying hardware or parallelism configuration.
 
-To ensure resilience, the entire inference process is wrapped in structured error handling.
-Any exceptions raised during loading, prompt generation, API calls,
-or output validation are caught and logged.
-If the output cannot be parsed or fails schema validation, a fallback JSON response is returned,
-defaulting the header row to one and including an explanatory error message.
-All raw responses and tracebacks are preserved to facilitate debugging and model refinement over time.
+After generation, the model’s response is expected to contain a valid JSON object with two keys: columnNameRow, indicating the 1-based index of the header row, and Explanation, providing natural language reasoning for the choice. The response is parsed using Python’s standard json library. If the model output is malformed or extraneous text appears before the JSON block, the parser attempts to extract the first valid JSON-like substring using regular expressions. Any parsing failures trigger a fallback mechanism that returns a default result and logs the incident for later analysis.
+
+Evaluation is carried out per model using evaluate.py, which applies this inference process across a large CSV corpus and records whether each prediction matches the corresponding value in a ground_truth.json file. All predictions, explanations, correctness flags, and metadata are written to disk in structured form. These intermediate results are aggregated post-hoc using aggregate_results.py, which merges per-model results into global summaries and evaluation metrics.
+
 
 === Data Flow
 
-The schema inference pipeline follows a linear and modular structure.
-Input data is first loaded and truncated to a 20-line preview.
-This preview is embedded into a prompt that includes three labeled examples.
-The prompt is then passed to the LLM, whose output undergoes JSON extraction and validation.
-If the output conforms to the defined schema, it is returned;
-otherwise, fallback mechanisms ensure that the pipeline continues gracefully.
-This pipeline—from data ingestion to validated result—enables systematic inference
-while preserving traceability at each stage.
+The evaluation pipeline initiates with directory traversal to locate all target CSV files, typically capped at 10,000 instances for large-scale benchmarking. For each file, a 20-line preview is extracted and sent to find_header.py, where a prompt is generated by inserting this snippet into a few-shot template. The transformer model processes the prompt and produces a structured response.
+
+This response is then parsed and compared to a reference value from the ground truth dataset. The outcome is logged, with both the predicted and expected values recorded. If parsing fails or the result is invalid, the system logs the error, substitutes a default row index (typically 1), and attaches a diagnostic message. This process continues for each file in the corpus.
+
+After all files have been evaluated for a given model, the results are saved in a partial results directory. When all models have been processed—typically via Slurm job arrays—aggregate_results.py is executed to compile the individual logs into a comprehensive results file (evaluation_results.json) and a summary statistics file (evaluation_summary.json).
 
 === I/O Formats & Schemas
 
-The input to the inference system is a plain-text string composed of the first 20 lines from the CSV file.
-This snapshot captures not only the data but also any preceding metadata, comments,
-or whitespace that may exist in real-world datasets.
-The prompt generated for the LLM includes this content alongside three few-shot examples,
-each comprising a similar CSV excerpt followed by a JSON-formatted answer.
-The output expected from the model must conform to a JSON schema specifying two fields:
-an integer columnNameRow indicating the line number of the header,
-and a string Explanation justifying the choice.
-This structured output format allows the system to use standard validators
-and simplifies downstream processing.
+The input to the system consists of a plain text string made up of the first 20 lines of a given CSV file. This preview may include noise such as comments, blank lines, or inconsistent delimiters, and is not sanitized prior to processing. This design choice reflects the real-world messiness of CSVs and challenges the model to generalize beyond cleanly formatted input.
+
+The output expected from the model is a strict JSON object containing two fields. The columnNameRow field holds an integer indicating the row where the column headers appear, using 1-based indexing. The Explanation field is a free-form natural language string that justifies the model’s choice. This output is parsed with the standard json module and validated against these schema constraints. If any structural or semantic issues are detected, the system returns a fallback output along with a log entry that includes the raw response for debugging purposes.
+
+This consistent format facilitates integration with possible downstream workflows, such as automated template generation, performance analytics, or error inspection tools. The structure also ensures compatibility with a wide range of evaluation and post-processing utilities.
 
 === Technology Stack
 
-The inference system is implemented in Python 3.10 and interacts with a local,
-GPT-compatible LLM via the OpenAI API. The LangChain library provides the JsonOutputParser,
-which integrates seamlessly with Pydantic for output schema enforcement.
-Other tools used in the system include the re module for pattern extraction,
-json for serialization and deserialization, and logging for diagnostics.
-The LLM backend itself is provided via vllm, a performant engine that allows batched and cached inference.
-The choice to run the model locally ensures that data privacy is maintained and inference latency
-is minimized, making the system suitable for sensitive or large-scale data applications.
+The implementation is written in Python 3.12 and uses Hugging Face’s transformers library to load and run language models offline. Inference is conducted entirely within the Python runtime, eliminating the need for any API servers or internet access. The evaluate.py and aggregate_results.py scripts are modular and self-contained, designed for efficient batch execution on high-performance clusters. Logging is handled through Python’s built-in logging module, which outputs both human-readable and machine-readable logs for debugging and analysis.
+
+The system architecture is fully portable and compatible with a variety of computing environments, ranging from local workstations to Slurm-managed GPU clusters. Models are loaded from disk without requiring Hugging Face Hub access, and no tokenizers or resources are fetched remotely during runtime. This guarantees operational stability in air-gapped or privacy-sensitive environments.
 
 === Error Handling
 
-Robust error handling is embedded at every stage of the pipeline.
-If the #abbr.a[LLM] output fails to parse into a valid JSON structure,
-a regex-based fallback attempts to extract a plausible JSON block.
-Should this still fail, or if schema validation throws an error,
-the system generates a fallback output with a default header row of one
-and a descriptive message indicating what went wrong.
-All errors are logged using the logging module, and raw model outputs are preserved
-to assist in manual review or prompt tuning.
-This approach ensures graceful degradation and provides clear signals when the model underperforms
-or when input data deviates from expected formats.
+The system is designed with layered exception handling at every stage. If a CSV file is unreadable or improperly formatted, the corresponding error is logged and the file is skipped. When the model returns an output that fails to parse as JSON, a regular expression is used to extract the most likely JSON block. If parsing still fails or required fields are missing, a default result is generated and recorded. These fallbacks include the assumed header row (typically the first row) along with an explanation of the error, allowing users to trace and debug failures systematically.
+
+All logs are serialized to disk and grouped by model, making it easy to review the performance of individual models and track recurring issues. The design ensures that evaluation is never halted due to a single failure. Instead, the system continues processing remaining files while isolating and documenting any errors encountered along the way. This robustness is critical for large-scale model benchmarking and reproducible experimentation.
 
 === Implementation Details
 
-The core functions of the system are designed for modularity and reuse.
-The CSV loader is implemented via load_csv_as_text(path),
-which reads a file and returns a list of strings.
-The prompt builder function, build_prompt(csv_str),
-creates the few-shot prompt by embedding labeled examples and formatting them consistently.
-The LLM client, whether based on openai or vllm, handles inference calls with deterministic settings.
-The response is processed by extract_json(response_text),
-which applies a regular expression to locate the JSON block
-and passes it to LangChain’s parser for validation.
-The Header Pydantic model enforces that the output adheres to the defined schema.
-If any step fails, fallback logic returns a safe, minimal output while logging the issue.
-
-These functions operate over clear input-output contracts:
-the input is a 20-line string from the CSV file,
-and the output is a validated JSON object identifying the header row.
-This predictability facilitates integration into broader data processing pipelines,
-such as automated dataset labeling, previewing, or ingestion routines.
-
-To complement the detailed explanation of the schema inference pipeline,
-the following sequence diagram in @LLMInfSequenceDiagram illustrates the dynamic interaction between the system’s components
-during an end-to-end execution of the evaluation workflow.
+The overall evaluation process is illustrated by the sequence diagram below. It captures the orchestration between Slurm, the individual scripts, and the modular components of the schema inference workflow.
 
 #figure(
-image("./LLMInf_SequenceDiagram.png", width: 132%),
-caption: [Sequence Diagram LLM Schema Inference],
-) <LLMInfSequenceDiagram>
+  image("./SequenceDiagram_LLMInf.png", width: 143%),
+  caption: [Sequence Diagram – LLM Schema Inference Evaluation Pipeline],
+) <sequence_diagram_llminf>
 
-The orchestration begins with the submission of a SLURM job (run_vllm_models.sh),
-which is responsible for setting up the computational environment, validating inputs,
-and initializing the model server.
-For each model under evaluation, a local vLLM instance is launched and monitored
-until it becomes accessible via the OpenAI-compatible API interface.
+The evaluation begins with the submission of a Slurm job array using the parallel_evaluation.sh script. Each array task selects one transformer model from a predefined list and runs the evaluate.py script in an isolated environment. This script reads all target CSV files, invokes find_header.py for each one via a subprocess, and compares the model’s prediction to the known ground truth. Results are written to model-specific JSON files inside the partial_results directory.
 
-Once the model server is confirmed to be running,
-the test harness (test_find_header.py) is executed.
-This script iterates over all CSV files in the evaluation directory,
-delegating each file to a subprocess invocation of the schema inference script (vllm_find_header.py).
-This subprocess reads the CSV file, constructs a prompt, and queries the local model instance.
-The resulting JSON response is parsed and returned to the test script,
-where it is compared against ground truth annotations.
-Evaluation metrics and raw results are written to structured output files,
-including JSON summaries and logs.
+Once evaluation is complete for all models, the aggregate_results.py script is executed. It reads each partial results file, merges the per-file evaluations, and produces two output files: evaluation_results.json, which contains the full set of predictions, and evaluation_summary.json, which summarizes accuracy and statistics for each model.
 
-After all files have been evaluated for a given model,
-the model server is gracefully terminated, and the workflow proceeds to the next model
-in the evaluation loop.
-In case of any startup failure, appropriate error logging
-and cleanup routines are invoked to maintain workflow integrity.
-The diagram captures these interactions,
-file system accesses, subprocess calls,
-and LLM query exchanges in a step-by-step sequence that mirrors the implemented orchestration.
-
-This diagram provides a visual overview of the entire inference and evaluation process,
-reinforcing the modular and reproducible nature of the architecture.
-
+This architecture supports graceful degradation, parallel execution, modular restarts, and detailed logging. It is optimized for batch operation and reproducible benchmarking, making it well-suited for systematic evaluation of header inference capabilities in large language models.

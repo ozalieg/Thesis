@@ -7,34 +7,34 @@ This literature review surveys foundational and emerging approaches to schema in
 prompt engineering, retrieval-augmented reasoning, multimodal table understanding,
 and automated pipeline synthesis—each directly informing the dual focus of this thesis.
 The first half of the review evaluates how classical heuristics, machine learning,
-and large language models (LLMs) address the challenge of detecting header rows
+and #abbr.pla[LLM] address the challenge of detecting header rows
 and semantic structure in noisy CSV files, aligning with the thesis’ empirical study
-on local LLM-based schema inference. It then explores advances in prompt engineering
+on local #abbr.a[LLM]-based schema inference. It then explores advances in prompt engineering
 and retrieval-augmented models, both central to enhancing zero-shot performance without fine-tuning.
 The second half pivots to pipeline generation,
-highlighting domain-specific language (DSL) frameworks like Jayvee
+highlighting #abbr.a[DSL] frameworks like Jayvee
 and automated systems such as Auto-Pipeline and AlphaClean,
 which contextualize the design of this thesis’ template generation engine.
 Together, these works underscore the relevance and novelty of integrating schema-aware
-interpretation with DSL-based pipeline synthesis for real-world tabular data processing.
+interpretation with #abbr.a[DSL]-based pipeline synthesis for real-world tabular data processing.
 
 == Prompt Engineering
 
 Prompt engineering offers significant advantages over fine-tuning, especially in terms of cost, resource requirements, and adaptability.
 Executing a well-crafted prompt is significantly less resource-intensive than full model fine-tuning,
-which can be prohibitively expensive in compute and data requirements—particularly when working with large language models (LLMs).
-It also bypasses the need for labeled datasets, leveraging the pre-trained model’s knowledge directly without supervised training data. @PORNPRASIT2024107523 @shin2025promptengineeringfinetuningempirical
+which can be prohibitively expensive in compute and data requirements—particularly when working with #abbr.pla[LLM].
+It also bypasses the need for labeled datasets, leveraging the pre-trained model’s knowledge directly without supervised training data (Pornprasit et al., 2024; Shin et al., 2025). @Pornprasit2024 @Shin2025
 
 While fine-tuning still generally yields higher peak performance, prompt engineering can achieve surprising effectiveness in certain applications.
 For example, in medical question-answering tasks using GPT‑4, few-shot prompting with structured reasoning steps not only matched but occasionally
-surpassed the performance of fine-tuned baselines such as PubMedBERT, even under stringent conditions like removal of key input tokens @zhang2024comparison.
+surpassed the performance of fine-tuned baselines such as PubMedBERT, even under stringent conditions like removal of key input tokens (Zhang et al., 2024) @Zhang2024.
 In code-domain benchmarks, careful prompting strategies have demonstrated competitive BLEU scores compared to fine-tuned models,
-especially when human feedback is integrated conversationally @turn0search5 @turn0search8.
+especially when human feedback is integrated conversationally (Smock et al., 2023; Shin et al., 2023) @Smock2023 @Shin2023
 
 Prompt-based methods also exhibit greater flexibility and robustness:
 models like GPT‑4 maintain performance stability even with significant prompt perturbations or content omission,
- and are compatible with diverse prompting styles—including zero-shot, few-shot, chain-of-thought,
- and conversational formats—making them highly adaptable for varied downstream tasks@zhang2024comparison.
+and are compatible with diverse prompting styles—including zero-shot, few-shot, chain-of-thought,
+and conversational formats—making them highly adaptable for varied downstream tasks (Zhang et al., 2024). @Zhang2024
 
 
 == Schema Inference and Tabular Data Understanding
@@ -44,20 +44,20 @@ models like GPT‑4 maintain performance stability even with significant prompt 
 Early approaches to schema inference in tabular data primarily relied on heuristic and rule-based methods.
 HUSS, a heuristic algorithm for understanding the semantic structure of spreadsheets,
 exemplifies this class of techniques by leveraging layout and formatting cues such as font style and alignment to infer header roles,
-operating effectively under assumptions of consistent structure @dint_a_00201.
-Similarly, Fang et al. present a rule-based classifier for header detection in digital libraries that utilizes features like
- pairwise similarity between consecutive rows—a classic form of pattern recognition—to distinguish between header and data regions @fang2012table.
- Milosevic et al. adopt a multi-layered approach that integrates functional and structural heuristics with machine learning,
- thereby acknowledging and partially addressing the limitations of purely rule-based strategies when faced with complex table layouts @milovsevic2018multi.
+operating effectively under assumptions of consistent structure (Wu et al., 2023) @Wu2023.
+Similarly, Fang et al. present a rule-based classifier for header detection in digital libraries that utilizes features like
+ pairwise similarity between consecutive rows—a classic form of pattern recognition—to distinguish between header and data regions (Fang et al., 2012) @Fang2012.
+ Milosevic et al. adopt a multi-layered approach that integrates functional and structural heuristics with machine learning,
+ thereby acknowledging and partially addressing the limitations of purely rule-based strategies when faced with complex table layouts (Milošević, 2018) @milovsevic2018.
 
 These early methods generally assumed well-formed, homogeneous data structures with clearly defined headers and uniform formatting across rows.
 In practice, however, such assumptions rarely hold. HUSS, for instance,
 shows diminished performance when applied to spreadsheets with noisy layouts or ambiguous header usage,
-underscoring the brittleness of heuristic approaches under real-world conditions @dint_a_00201.
-Fang et al. similarly note the challenge of generalizing across diverse table styles,
-especially when extraneous metadata or multi-row headers are present @fang2012table.
-Milosevic et al. explicitly highlight the difficulties posed by visual and semantic
-variability in biomedical tables, motivating their integration of learning-based components as a means of enhancing robustness @milovsevic2018multi.
+underscoring the brittleness of heuristic approaches under real-world conditions (Wu et al., 2023) @Wu2023.
+Fang et al. similarly note the challenge of generalizing across diverse table styles,
+especially when extraneous metadata or multi-row headers are present @Fang2012.
+Milosevic et al. explicitly highlight the difficulties posed by visual and semantic
+variability in biomedical tables, motivating their integration of learning-based components as a means of enhancing robustness (Milošević, 2018) @milovsevic2018.
 
 In summary, while classical rule-based methods like HUSS and those proposed by Fang and Milosevic demonstrate utility under idealized conditions,
 their reliance on structural consistency and formatting regularity often limits applicability.
@@ -70,114 +70,153 @@ With the advent of machine learning, researchers began exploring more robust met
 For example, Strudel applies a supervised learning method to classify lines and cells in CSV-like tables,
 linking each cell to types such as header, data, derived or footnote.
 It uses content-based, contextual, and computational features—and includes post-processing steps to correct classification
-errors—significantly improving header row detection in noisy datasets @koci2016machine.
+errors—significantly improving header row detection in noisy datasets (Koci et al., 2016). @Koci2016
 
 Likewise, Khusro et al. (2018) developed a supervised classification model for header detection in PDFs,
 leveraging textual and layout features (like bounding box and whitespace cues) with a decision-tree classifier that showed strong performance
-after a repair-oriented post-processing stage @budhiraja2020supervised. These hybrid systems demonstrate that applying machine learning—especially combined
+after a repair-oriented post-processing stage (Budhiraja & Mago, 2020) @Budhiraja2020. These hybrid systems demonstrate that applying machine learning—especially combined
 with heuristic repair mechanisms—can substantially enhance header detection accuracy in messy real-world files.
+
+While machine learning strategies like Strudel and the work by Khusro et al. enhanced schema inference by combining supervised classification with heuristic post-processing — they still relied on labeled training data and handcrafted rules — modern #abbr.pla[LLM] offer a transformative advancement.
 
 === Modern Techniques Leveraging Language Models
 
 Recent advancements have brought #abbr.pla[LLM] into schema inference workflows,
 enabling powerful new capabilities in table understanding.
-One prominent example is Schema-Driven Information Extraction from Heterogeneous Tables, which frames table schema inference as an extraction problem:
-given a JSON-defined schema, instruction-tuned transformer models like GPT‑4 or Code‑Davinci can parse noisy tables (HTML, LaTeX, CSV)
-and output structured JSON records matching the schema.
-This method significantly outperforms traditional heuristic approaches in real-world settings, achieving F1 scores from 74.2% to 96.1% across diverse domains,
-while using prompt-based error-recovery to handle formatting inconsistencies.@bai2024schema
+In Schema‑Driven Information Extraction from Heterogeneous Tables,
+Bai et al. (2024) reformulate schema inference as a structured extraction task:
+given a JSON schema and a noisy table, instruction-tuned #abbr.pla[LLM] like GPT‑4
+and Code‑Davinci output structured JSON records.
+They report impressive F1 scores from 74.2% to 96.1%, matching
+or exceeding traditional supervised systems—all without any task-specific training (Bai et al., 2024). @Bai2024
 
-These systems leverage instruction-following transformer models that are trained or tuned for schema compliance,
-delivering robust interpretation of tabular context even under noise and structural complexity.
-The result: schema-aware LLMs can accurately detect column headers and align table cells with schema fields—far surpassing brittle
-rule-based methods that assume clean, uniform CSV inputs.
-Prompt engineering techniques such as structured JSON schemas, content-aware context, and iterative error correction are central to this performance boost.
+Further, Wu et al. (2025) apply LLMs to taxonomy inference over table data,
+showing these models consistently reconstruct hierarchical entity types that align closely
+with gold-standard ontologies, outperforming classic lexical-structural methods in consistency
+and semantic accuracy (Wu et al., 2025). @Wu2025
 
-== Retrieval-Augmented Language Models and Context Injection
+These instruction-following transformers thus provide schema-aware parsing
+across contexts and noise levels—even handling multi-row headers or missing delimiters—far
+surpassing feature-engineered ML pipelines.
 
-Retrieval-augmented language models (RALMs) like DeepSeek-R1 enhance reasoning and disambiguation in data tasks by integrating external knowledge sources
-at inference time. DeepSeek-R1, developed as part of the DeepSeek initiative, employs a multi-stage training process—including cold-start data,
-supervised fine-tuning, and reinforcement learning with human feedback (RLHF)—that enhances its ability to reason over structured and semi-structured inputs
-such as tables and CSV files @deepseek2024deepseek.
+
+==== Retrieval-Augmented Language Models and Context Injection
+
+#abbr.add("RALM","Retrieval-augmented language models") #abbr.pla[RALM] like DeepSeek Coder enhance reasoning
+and disambiguation in data tasks by integrating external knowledge sources at inference time.
+DeepSeek Coder employs a multi-stage training process—including cold-start data,
+supervised fine-tuning, and #abbr.add("RLHF","reinforcement learning with human feedback") #abbr.a[RLHF]
+—that enhances its ability to reason over structured and semi-structured inputs such as tables
+and CSV files.
 This augmentation strategy allows models to dynamically pull in domain-relevant information,
-which improves both factual accuracy and interpretability in schema inference tasks @bai2024schema.
+which improves both factual accuracy and interpretability in schema inference tasks (Deepseek-AI, 2024). @Deepseek-AI2024
 
-In header detection for noisy CSV files, RALMs can use retrieval to resolve ambiguous or missing context.
-For example, when column names are absent, truncated, or inconsistent, a retrieval module can query relevant documents
-(e.g., documentation, similar datasets, or metadata repositories) to infer likely schema roles @bai2024schema.
-This makes retrieval-enhanced models significantly more robust than static models that rely solely on training-set priors.
-Practical implementations, including experiments involving DeepSeek-R1 with LangChain or LangGraph frameworks,
-have demonstrated that recursive retrieval pipelines improve disambiguation and classification in real-world CSV tasks @lijin2024structured.
+In header detection for noisy CSV files, #abbr.pla[RALM] can use retrieval to resolve ambiguous or missing context.
+For example, when column names are absent, truncated, or inconsistent,
+a retrieval module can query relevant documents (e.g., documentation, similar datasets,
+or metadata repositories) to infer likely schema roles.
+This makes retrieval-enhanced models significantly more robust than static models
+that rely solely on training-set priors.
+Practical implementations, including experiments involving DeepSeek Coder
+with LangChain or LangGraph frameworks, have demonstrated that recursive retrieval
+pipelines improve disambiguation and classification in real-world CSV tasks (Deepseek-AI, 2024). @Deepseek-AI2024
 
-Furthermore, retrieval capabilities enable language models to adapt more flexibly to new or evolving data formats without requiring extensive re-training.
-Unlike fixed classifiers, RALMs like DeepSeek-R1 use retrieval-augmented generation (RAG) to externalize parts of the reasoning process,
-leading to better generalization in unseen formats or edge cases @deepseek2024deepseek.
-This makes them especially suited to schema inference applications, where file variability, semantic ambiguity, and format drift are common @bai2024schema.
+Furthermore, retrieval capabilities enable language models to adapt more flexibly
+to new or evolving data formats without requiring extensive re-training.
+Unlike fixed classifiers, #abbr.pla[RALM] like
+DeepSeek Coder use #abbr.add("RAG","retrieval-augmented generation") #abbr.a[RAG]
+to externalize parts of the reasoning process, leading to better generalization
+in unseen formats or edge cases.
+This makes them especially suited to schema inference applications,
+where file variability, semantic ambiguity, and format drift are common (Deepseek-AI, 2024). @Deepseek-AI2024
 
+==== Multi-modal Models for Tabular Data Analysis
 
-== Multi-modal Models for Tabular Data Analysis
+Recent work has focused on large multimodal models such as Qwen3-4B,
+which can jointly process text, table structures, and images.
+These models demonstrate strong capabilities in understanding complex table layouts and semantic
+content by integrating visual and textual modalities.
+The PubTables-1M dataset, containing nearly one million tables,
+has enabled training of such multimodal models and demonstrated that
+transformer-based object-detection architectures improve detection,
+structure recognition, and functional analysis across diverse domains without
+requiring specialized architectures (QwenLM, 2024). @QwenLM2024
 
-Recent work has focused on large multimodal models like Qwen‑VL and TableGPT‑2, which can jointly process text,
-table structures, and images. Models such as InternLM‑xComposer and TableLLaMA illustrate how integrating visual and textual modalities enhances schema inference
-in complex tables by understanding layout, spatial relationships, and semantic content simultaneously @turn0search7.
-The PubTables‑1M dataset, containing nearly one million tables, has enabled training of such multimodal models and demonstrated
-that transformer-based object-detection architectures improve detection, structure recognition, and functional analysis across diverse
-domains without specialized architectures @turn0academia12.
+Nonetheless, even state-of-the-art multimodal LLMs like Qwen3-4B struggle
+with reconstructing table structures reliably, especially from images alone,
+highlighting the necessity for improved visual grounding and spatial reasoning. @QwenLM2024
 
-Nonetheless, recent findings show that even state-of-the-art multimodal LLMs struggle with reconstructing table structures reliably,
-especially from images alone, highlighting the necessity for improved visual grounding and spatial reasoning in these models @turn0search11 @turn0search2.
+==== Instruction-Tuned Models for Code and Table Tasks
 
-== Performance Evaluation Metrics and Benchmark Datasets for Schema Inference
+Instruction-tuned language models, such as CodeLlama-7B-Instruct,
+demonstrate strong performance in both code understanding and schema-oriented prompting.
+CodeLlama‑7B‑Instruct is a variant of Meta's Code Llama family,
+fine-tuned to follow natural language instructions rather than only generate code.
+It inherits from the Llama 2 architecture and was further trained on approximately 500 billion tokens of code,
+followed by ~5 billion tokens of instruction tuning to improve compliance with developer directives (Rozière et al., 2024; Meta AI, 2024). @Roziere2024 @Meta2024
 
-Model evaluation relies on metrics like accuracy, F1 score, substring match, and ROUGE‑L, reflecting both structural and content correctness in schema inference
-tasks @turn0search2. PubTables‑1M sets a high water mark for table structure recognition,
-while TabLeX provides a benchmark for extracting both table content and structure from scientific sources @turn0academia12 @turn0academia13.
+As an autoregressive transformer, CodeLlama 7B‑Instruct supports code completion,
+ infilling between code snippets, and instruction-driven generation across multiple
+ languages—including Python, C++, JavaScript, and more.
+ Critically, it features a long context window of up to 100k tokens,
+ enabling it to handle large tables or long scripts in a single prompt—an essential
+ capability for batch schema inference tasks (Meta AI, 2024). @Meta2024
 
-However, annotation inconsistencies such as over‑segmentation remain prevalent across datasets,
-and researchers have proposed canonicalization methods to standardize annotations to ensure reliable performance estimation @turn0search5.
+Meta-released benchmark evaluations on HumanEval and MultiPL-E datasets indicate
+that CodeLlama models achieve state-of-the-art performance among open-source models,
+with pass\@k scores comparable to LLaMA alternatives.
+The instruction-tuned variant further improves functional accuracy and compliance,
+making it suitable for structured generation—such as converting CSV headers into DSL schema definitions (Rozière et al., 2024).  @Roziere2024
 
-Benchmarking tools emphasize that metrics must capture per‑cell integrity and end‑to‑end table accuracy to truly reflect a model’s robustness
-to real-world format variations @turn0search5 @turn0search0.
+Importantly, CodeLlama‑7B‑Instruct supports fill‑in‑the‑middle infilling and boasts
+a long‑context window of up to 100k tokens, enabling it to generate, explain,
+and manipulate large code blocks or tables in one prompt—an essential capability
+for schema inference workflows (Meta AI, 2024). @Meta2024
 
-== Extending Prior Work: Local LLMs for Noisy CSV Header Detection
+Performance benchmarks show CodeLlama‑7B‑Instruct achieves near‑state‑of‑the‑art
+results among open-source code models.
+The full CodeLlama family outperforms comparable LLaMA‑2 baselines on benchmarks such as HumanEval,
+ MBPP, and MultiPL‑E, with the “Instruct” variant demonstrating enhanced
+ functional accuracy and instruction compliance—qualities ideal
+ for structured schema generation in tabular and DSL contexts.@Meta2024
 
-In light of the developments surveyed, this thesis positions itself at the intersection
+In schema inference, this model’s instruction‑tuned design allows prompts
+like “extract header row as JSON schema” or “fill missing schema cell based on context,”
+enabling interpreters to process complete table segments in a single pass.
+Its long‑context capability avoids errors from prompt truncations. @Meta2024
+
+=== Extending Prior Work: Local LLMs for Noisy CSV Header Detection
+
+In light of these developments, this thesis positions itself at the intersection
 of prompt-based schema inference and pipeline automation for tabular data,
-responding directly to several critical gaps in the literature.
+responding directly to critical gaps in the literature.
 
-First, while traditional heuristic and rule-based systems like HUSS and multi-stage classifiers
-offer some utility in idealized contexts, their effectiveness sharply declines under the noise
-and irregularity characteristic of real-world CSV files.
-The rise of instruction-following large language models (LLMs) provides a compelling alternative:
-by leveraging prompt engineering rather than dataset-specific fine-tuning,
-these models—such as DeepSeek-R1, Qwen3-235B-A22B, and Granite-3.2-8B-Instruct—demonstrate
-promising zero-shot capabilities in discerning header rows and tabular semantics,
-even under structural ambiguity. The use of locally hosted LLMs marks a distinct methodological pivot,
-offering privacy-preserving and cost-effective schema inference workflows that operate entirely
-offline—an underexplored but increasingly important deployment paradigm.
+While traditional heuristic and rule-based systems offer some utility in idealized contexts,
+their effectiveness sharply declines under the noise and irregularity characteristic of real-world CSV files.
+Instruction-following #abbr.pla[LLM] such as DeepSeek Coder, Qwen3-4B,
+and lCodeLlama-7B-Instruct demonstrate promising zero-shot capabilities
+in discerning header rows and tabular semantics, even under structural ambiguity @Deepseek-AI2024 @QwenLM2024 @Meta2024.
+Locally hosted #abbr.pla[LLM] offer privacy-preserving and cost-effective schema inference workflows that operate entirely offline, an underexplored but increasingly important deployment paradigm @Deepseek-AI2024.
 
-Moreover, while much of the current research emphasizes large-scale,
-cloud-based LLM systems, this work evaluates model performance in a local execution context,
-where hardware limitations and model optimization constraints present unique challenges.
-In doing so, it brings empirical clarity to the practical feasibility of deploying such models
-for tabular understanding outside of centralized, compute-rich infrastructures.
+Moreover, while much current research emphasizes cloud-based LLM systems,
+ this work evaluates model performance in a local execution context,
+ where hardware limitations and model optimization constraints present unique challenges.
+ This brings empirical clarity to the practical feasibility of deploying
+ such models for tabular understanding outside of centralized, compute-rich infrastructures @Deepseek-AI2024 @QwenLM2024 @Meta2024.
 
-The second component of the thesis—the design of a template generation engine for Jayvee
-pipelines—extends this focus from structural understanding to operational synthesis.
-Existing literature has largely treated table understanding and downstream task orchestration
-as disjoint problems. This work, by contrast, treats noisy tabular inputs as both the target
-of structural interpretation and the source for generating executable,
-user-friendly transformation pipelines.
-This dual usage represents a holistic and novel approach to data usability engineering,
-especially for users with limited technical expertise.
+The thesis also introduces a template generation engine for Jayvee pipelines,
+extending focus from structural understanding to operational synthesis.
+By treating noisy tabular inputs as both targets for structural interpretation
+and sources for generating executable, user-friendly transformation pipelines,
+it proposes a holistic approach to data usability engineering for users with
+limited technical expertise.
 
-Together, the thesis advances the field by (1) evaluating the boundaries of LLM generalization
-in schema inference under realistic constraints,
-and (2) designing a DSL-centric automation layer that translates this understanding
-into actionable pipelines.
-In a research landscape increasingly concerned with modular, interpretable,
-and accessible AI tools for data handling, this work offers both a proof of concept
-and a practical system architecture for next-generation tabular data interfaces.
+Together, this work advances the field by (1) evaluating LLM generalization boundaries
+in schema inference under realistic constraints, and (2) designing a DSL-centric automation
+layer that translates understanding into actionable pipelines,
+offering a practical system architecture for next-generation
+tabular data interfaces.
+
 
 == Automated DSL-based Pipeline Synthesis
 
@@ -186,19 +225,30 @@ the second stream of this thesis focuses on template-driven pipeline
 synthesis using Jayvee’s domain-specific language.
 Empirical evaluation of Jayvee has demonstrated that DSL-based workflows significantly lower the barrier
 to pipeline creation for non-professional developers,
-improving both development speed and comprehension of data architectures @heltweg2025empirical.
+improving both development speed and comprehension of data architectures (Heltweg et al., 2025) @Heltweg2025.
 This aligns with broader efforts in automated pipeline construction—for instance,
 the Auto‑Pipeline system synthesizes transformation sequences by leveraging target table
 representations and reinforcement‑learning-guided search,
-achieving successful generation of 60–70% of complex pipelines @yang2021autopipeline.
+achieving successful generation of 60–70% of complex pipelines (Yang et al., 2021) @Yang2021.
+
 Similarly, AlphaClean explores generative frameworks that combine operator libraries
-with quality metric-driven search, producing robust cleaning pipelines without manual scripting @krishnan2019alphaclean.
-Earlier work on component-based synthesis in PLDI-style systems demonstrates
-how DSL blocks can be composed to perform table manipulation and consolidation from example inputs,
-offering a conceptual blueprint for constructing Jayvee interpreters and loaders programmatically @feng2017component.
+with quality metric-driven search, producing robust cleaning pipelines without manual scripting (Krishnan et al., 2019) @Krishnan2019.
+
+Earlier work on component-based synthesis in PLDI-style systems—
+so named for their roots in the #abbr.add("PLDI","Programming Language Design and Implementation") #abbr.a[PLDI]
+research community—demonstrates how #abbr.a[DSL] blocks can be composed
+to perform table manipulation and consolidation from example inputs,
+offering a conceptual blueprint for constructing Jayvee interpreters and loaders programmatically (Feng et al., 2017) @Feng2017.
+These systems typically emphasize modularity, compositionality, and example-driven synthesis,
+leveraging structured DSLs and formal semantics to generate programs that satisfy user-specified
+constraints or data transformations.
+Jayvee, by using templates and schema-driven synthesis, aligns with this ethos—especially
+in how data schemas map to composable pipeline fragments, enabling non-expert users
+to build robust workflows programmatically.
+
 Finally, template systems such as the Variational Template Machine illustrate
 how structured outputs can be automatically abstracted into reusable templates,
-supporting the idea of deriving Jayvee “pipeline skeletons” from data‑derived schemas @ye2020variational.
+supporting the idea of deriving Jayvee “pipeline skeletons” from data‑derived schemas (Ye et al., 2020) @Ye2020.
 The combined insight from these sources supports your implementation: by parsing CSV-based schema metadata
 and mapping it to structured Jayvee DSL pipelines, your work bridges schema inference with executable,
 user-friendly pipeline templates—extending schema-aware tabular reasoning into
