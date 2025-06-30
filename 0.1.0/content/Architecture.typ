@@ -3,10 +3,16 @@
 
 = Architecture
 
-In this chapter, the architecture of both the Jayvee Template Generation and the LLM Schema Inference subsystems are presented, illustrating how each layer and component interacts to fulfill its respective data-processing goals.
+This chapter explores the internaFl architecture of two core subsystems that underpin the overall functionality of the project: Jayvee Template Generation and LLM-Based Schema Inference.
+ Each system is architected as a layered pipeline, encapsulating distinct concerns such as orchestration, data ingestion, transformation, inference, and output generation.
+Through detailed component breakdowns and accompanying diagrams, this chapter provides insight into how raw tabular data is transformed into structured metadata or executable pipeline templates.
+The goal is to convey both a conceptual overview and a practical account of each subsystem’s modular design, control flow, and extensibility mechanisms.
 
 == Jayvee Template Generation
 
+This section presents the architecture of the Jayvee Template Generation subsystem, which automates the conversion of CSV datasets into structured Jayvee pipeline templates.
+
+Despite being implemented as a single command-line script, the system adopts a layered, component-based design typical of modern ETL tools. Each layer—from input parsing and schema inference to DSL code generation—is purpose-built to support modularity, extensibility, and robust error handling. By examining the responsibilities and data flow within each layer, this section provides a comprehensive look at how raw input files are transformed into ready-to-run Jayvee specifications.
 
 The Jayvee Template Generation system automates the creation of structured Jayvee pipeline templates by extracting metadata—such as column names, types and overall schema—from heterogeneous CSV datasets. Although implemented as a single #abbr.a[CLI]-driven script, its internal architecture follows a modular, layered component model that mirrors data-flow principles common in modern ETL tooling. At the top sits the orchestration layer, embodied by a command-line interface that parses user arguments to determine whether inputs come from a single CSV file, a URL, a list of URLs, or an existing JSON schema; it also configures output directories and flags for optional JSON schema emission. Once arguments have been interpreted, the execution controller routes control flow to the input layer.
 
@@ -27,9 +33,11 @@ caption: [Architecture Component Diagram - Jayvee Template Generation],
 The diagram illustrates these layers, their responsibilities and the flow of data and control between them. The orchestration layer sits at the top, directing input sources toward the input layer; the input layer prepares data for the core engine, which itself is subdivided into ingestion, inference, schema construction and conversion stages; finally, generated artifacts emerge at the bottom while a cross-cutting logging component captures errors at every step.
 This visualizes how each component contributes to the end-to-end transformation from raw CSV inputs to executable Jayvee pipelines, how optional JSON schema emission is handled, and how robust error handling is woven throughout the process.
 
-== LLM Schema Inference
+== LLM-Based Schema Inference
 
-The LLM Schema Inference system is built as a multi‐layered, Slurm‐orchestrated pipeline that transforms raw tabular datasets into structured metadata by leveraging large language models. At its highest level, a Slurm job script serves as the orchestration layer: it submits an array of tasks across GPU nodes, configures environment modules (Python, CUDA), activates a dedicated Conda environment, and ensures each Slurm array task isolates a specific model and data shard. Once a job is dispatched, the execution controller invokes evaluate.py, which parses command-line arguments (model directory, stride, offset, parallelism) and initializes distributed process groups when GPUs are available.
+This section details the architecture of the LLM-Based Schema Inference subsystem, which utilizes large language models to extract structured metadata from CSV datasets. Designed as a distributed, multi-layered pipeline orchestrated by Slurm, the system balances high-throughput batch processing with modular flexibility. It integrates components for job orchestration, input validation, prompt-based model inference, and evaluation, each operating in parallel across GPU nodes. The architecture emphasizes scalability, fault isolation, and extensibility—making it well-suited for large-scale schema inference tasks in high-performance computing environments.
+
+At its highest level, a Slurm job script serves as the orchestration layer: it submits an array of tasks across GPU nodes, configures environment modules (Python, CUDA), activates a dedicated Conda environment, and ensures each Slurm array task isolates a specific model and data shard. Once a job is dispatched, the execution controller invokes evaluate.py, which parses command-line arguments (model directory, stride, offset, parallelism) and initializes distributed process groups when GPUs are available.
 
 In the input layer, evaluate.py locates and validates CSV files from a designated directory, loads ground-truth annotations from JSON, and shards the file list across ranks and strides for data parallelism. Each selected CSV path, paired with its model identifier and an environment mapping of CUDA device assignments, is passed to a multiprocessing pool that executes run_find_header_job tasks in parallel.
 
@@ -42,7 +50,7 @@ Throughout every stage—from Slurm orchestration through model inference and ev
 Below in @llm_schema_diagram this layered architecture is illustrated by a component diagram icluding the flow of control and data between components as well as the cross-cutting logging concern:
 #figure(
 image("./Architecture_LLMInf.png", width: 120%),
-caption: [Architecture Component Diagram – LLM Schema Inference ],
+caption: [Architecture Component Diagram – LLM-Based Schema Inference ],
 ) <llm_schema_diagram>
 
 By depicting the Slurm script at the top,
@@ -56,3 +64,15 @@ This modular, layered design ensures that new models, alternative parsing strate
 or enhanced evaluation metrics can be introduced independently,
 while Slurm’s array mechanism guarantees horizontal scalability and fault isolation across
 high‐performance computing environments.
+
+== Conclusion
+
+The architectural designs of both the Jayvee Template Generation and LLM-Based Schema Inference
+subsystems exemplify modular, layered pipelines tailored for data-centric transformation tasks.
+Each system applies distinct orchestration strategies—CLI-based execution versus Slurm-based
+job arrays—while adhering to common principles such as clear separation of concerns,
+robust error handling, and data-driven control flow.
+Their component-based structures enable independent evolution of subsystems such as schema inference,
+data preprocessing, or evaluation logic.
+Together, these designs support scalable, fault-tolerant processing of heterogeneous tabular
+data across both interactive and distributed execution environments.

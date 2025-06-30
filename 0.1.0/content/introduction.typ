@@ -23,10 +23,10 @@ in CSV files with substantial noise, ambiguity, or structural irregularity.
 This task, central to reliable schema inference, is particularly difficult in real-world
 files that may contain metadata blocks, multiline comments, unit descriptors, or multilingual preambles.
 Traditional heuristic-based approaches—such as evenly spaced sampling, content snapshot selection,
-or rule-based parsing—tend to degrade significantly under these conditions (Jiang et al., 2021) @Jiang2021.
+or rule-based parsing—tend to degrade significantly under these conditions (Jiang et al., 2021 @Jiang2021).
 Recent work, however, has shown that LLMs prompted with structured instructions
 can outperform these heuristics in identifying headers under noisy conditions.
-Studies such as Sui et al. (2024)@Sui2024 and Liu et al. (2024) @Liu2024 report measurable
+Studies such as Sui et al. (2024) @Sui2024 and Liu et al. (2024) @Liu2024 report measurable
 gains in schema identification accuracy, with LLMs outperforming conventional
  baselines by 0.8% to 4.07% when carefully engineered prompts are used.
 
@@ -49,18 +49,18 @@ A user-oriented #abbr.add("CLI", "Command-Line Interface") #abbr.a[CLI] enables 
 Overall, this tool simplifies data pipeline creation for tabular data engineering projects by automating schema inference and template generation.
 
 
-== LLM Schema Inference
+== LLM-Based Schema Inference
 
 
 A core challenge addressed in this work is the detection of header rows in anomalous CSV files where the initial rows may contain arbitrary metadata or comments,
 breaking assumptions of standard parsers.
 To tackle this, schema inference is performed using a locally hosted #abbr.a[LLM] that analyzes the file content and predicts the correct header structure.
 
-One of the evaluated models is DeepSeek-Coder, a code-centric transformer model optimized for program synthesis and structured data tasks. Although not explicitly instruction-tuned, its strong token-level precision and generalization on semi-structured inputs make it suitable for header detection in adversarial CSVs (Guo et al., 2024). @Guo2024
+One of the evaluated models is DeepSeek-Coder, a code-centric transformer model optimized for program synthesis and structured data tasks. Although not explicitly instruction-tuned, its strong token-level precision and generalization on semi-structured inputs make it suitable for header detection in adversarial CSVs (Guo et al., 2024 @Guo2024).
 
-The second model, Qwen3-4B, is a compact yet capable transformer from the Qwen3 family, trained with alignment techniques that improve instruction adherence and tabular comprehension (Yang et al., 2025). @Yang2025
+The second model, Qwen3-4B, is a compact yet capable transformer from the Qwen3 family, trained with alignment techniques that improve instruction adherence and tabular comprehension (Yang et al., 2025 @Yang2025).
 
-Lastly, CodeLlama-7B-Instruct, an instruction-tuned variant of Meta’s CodeLlama model, was evaluated for its practical trade-off between scale, instruction fidelity, and local deployability. It is designed to follow natural language prompts and handle semi-structured data representations (Rozière et al., 2024).  @Roziere2024
+Lastly, CodeLlama-7B-Instruct, an instruction-tuned variant of Meta’s CodeLlama model, was evaluated for its practical trade-off between scale, instruction fidelity, and local deployability. It is designed to follow natural language prompts and handle semi-structured data representations (Rozière et al., 2024 @Roziere2024).
 
 The following table summarizes the technical profile and empirical performance notes for each model in the context of this schema inference task:
 
@@ -68,9 +68,9 @@ The following table summarizes the technical profile and empirical performance n
 table(
 columns: 4,
 [Model], [Parameters], [Architecture], [Key Capabilities],
-[DeepSeek-Coder], [Unknown (medium scale)], [Code-focused transformer], [High token-level precision, performs well on structured data (Guo et al., 2024) @Guo2024],
-[Qwen3-4B], [4 billion], [Instruction-tuned transformer], [Lightweight yet instruction-aware, capable of handling structural noise (Yang et al., 2025) @Yang2025],
-[CodeLlama-7B-Instruct], [7 billion], [Instruction-tuned transformer], [Designed for prompt following and semi-structured data understanding (Rozière et al., 2024) @Roziere2024],
+[DeepSeek-Coder], [Unknown (medium scale)], [Code-focused transformer], [High token-level precision, performs well on structured data (Guo et al., 2024 @Guo2024)],
+[Qwen3-4B], [4 billion], [Instruction-tuned transformer], [Lightweight yet instruction-aware, capable of handling structural noise (Yang et al., 2025 @Yang2025)],
+[CodeLlama-7B-Instruct], [7 billion], [Instruction-tuned transformer], [Designed for prompt following and semi-structured data understanding (Rozière et al., 2024 @Roziere2024)],
 ),
 caption: [Comparison of Evaluated Language Models for Schema Inference in Noisy CSV Files],
 )

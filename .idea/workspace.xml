@@ -8,26 +8,17 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/0.1.0/Notes/DiagramCode.md" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/Notes/DiagramCode.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/0.1.0/content/Architecture.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/Architecture.typ" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/0.1.0/content/Architecture_LLMInf.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/0.1.0/content/Conclusions.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/Conclusions.typ" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/content/DataFlowDiagram_LLMInference.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/content/Datagram_TempGen.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/0.1.0/content/DesignAndImplementation.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/DesignAndImplementation.typ" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/0.1.0/content/Evaluation.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/Evaluation.typ" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/0.1.0/content/FutureWork.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/FutureWork.typ" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/content/LLMInf_SequenceDiagram.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/content/LLMInf_Test_Architecture.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/0.1.0/content/LiteratureReview.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/LiteratureReview.typ" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/content/Requirements.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/Requirements.typ" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/content/TempGen_Seq.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/content/Test_Architecture_TempGen.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/0.1.0/content/abstract.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/abstract.typ" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/content/billOfMaterials.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/billOfMaterials.typ" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/0.1.0/content/introduction.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/content/introduction.typ" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/content/llmInferenceDatagramm.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/0.1.0/metadata.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/metadata.typ" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/0.1.0/thesis.bib" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/thesis.bib" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/0.1.0/thesis.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/thesis.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/0.1.0/thesis.typ" beforeDir="false" afterPath="$PROJECT_DIR$/0.1.0/thesis.typ" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -225,7 +216,7 @@
       <workItem from="1750622178902" duration="24104000" />
       <workItem from="1750870457258" duration="604000" />
       <workItem from="1750878124846" duration="5773000" />
-      <workItem from="1751034181421" duration="21026000" />
+      <workItem from="1751034181421" duration="34176000" />
     </task>
     <task id="LOCAL-00001" summary="test">
       <option name="closed" value="true" />

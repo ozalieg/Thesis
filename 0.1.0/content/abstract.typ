@@ -9,7 +9,7 @@ This thesis consists of two standalone yet thematically related parts: (1) the d
 The first part introduces a template generation system aimed at non-programmers who need to create data pipelines from structured input files.
 This system operates independently of LLMs and is capable of handling well-formed and mildly noisy CSVs by skipping unparseable lines while extracting usable column headers.
 It produces ready-to-use Jayvee templates, streamlining the process of pipeline creation for users with minimal coding experience.
-A large-scale evaluation of the template generator was conducted on 10,000 synthetic CSV files in an HPC environment using a custom SLURM-based test harness. Metrics include template validity, runtime, and SQLite output completeness.
+A large-scale evaluation of the template generator was conducted on 10,000 synthetic CSV files in an #abbr.add("HPC","High Performance Computing") #abbr.a[HPC] environment using a custom SLURM-based test harness. Metrics include template validity, runtime, and SQLite output completeness.
 
 The second part evaluates the capability of LLMs to detect the correct header row in noisy or non-standard CSV files—a common challenge in practical data processing.
 A corpus of 10,000 synthetically perturbed CSV files, each paired with a ground truth JSON annotation, serves as the benchmark dataset.

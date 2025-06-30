@@ -115,19 +115,18 @@ The final Jayvee output format is a human-readable, line-based representation of
 === Error Handling
 
 Input boundaries are actively validated.
-Missing files, broken URLs, or malformed links trigger #abbr.a[GUI] warnings and are logged to disk.
+Missing files, broken URLs, or malformed links trigger #abbr.a[CLI] warnings and are logged to disk.
 Defaulting behavior in the schema inference stage ensures that unknown or unnamed columns
 are still incorporated, using generic labels and default types.
 All critical errors, including malformed inputs or I/O failures,
 are logged to a centralized `error_log.txt`.
 Structured error reporting avoids stack trace noise and supports batch evaluation.
-#abbr.a[GUI] alerts present user-friendly messages while the #abbr.a[CLI] remains quiet unless run interactively.
 
 
 === Implementation Details
 
 Each component is implemented as a pure Python function or class that communicates
-via in-memory data structures. The #abbr.a[GUI] uses standard file and dialog boxes to capture user input,
+via in-memory data structures. The #abbr.a[CLI] uses standard file and dialog agrument interpretation to capture user input,
 disabling interactions while tasks are running and re-enabling them when complete.
 Input handling selects the appropriate loading mechanism—open() for local files,
 urllib.request.urlopen() for remote sources—and supports batch iteration over links files.
@@ -149,16 +148,16 @@ illustrating the order and nature of interactions between user interface, core l
 and file writing subsystems:
 
 #figure(
-image("./SequenceDiagram_TempGen.png", width: 143%),
+image("./SequenceDiagram_TempGen.png", width: 130%),
 caption: [Sequence Diagram - Jayvee Template Generation],
 ) <sequence_diagram_tempgen>
 
 The sequence diagram above delineates the end‑to‑end implementation workflow
 of the Jayvee Template Generation Script, tracing each interaction from the moment a user initiates
 the process through to the successful creation of a Jayvee template.
-Upon clicking “Select CSV,” “Enter URL,” or “Select Links File,” the #abbr.a[GUI] component immediately
+Upon clicking “Select CSV,” “Enter URL,” or “Select Links File,” the #abbr.a[CLI] component immediately
 locks the interface and begins logging progress to prevent conflicting inputs during execution.
-In the case of a single file or direct URL, the #abbr.a[GUI] delegates control to the Input Management module,
+In the case of a single file or direct URL, the #abbr.a[CLI] delegates control to the Input Management module,
 which either prompts for a file or accepts the URL before normalizing and processing the data source.
  If a links file is chosen, the Input Management module reads each link in turn, invoking
  the same processing routine for every entry in the batch.
@@ -172,13 +171,13 @@ and computing spreadsheet‑style column labels for any renamed headers.
 Should JSON output be enabled via the CREATE_JSON flag, the JSON & Jayvee Writer first persists
 the intermediate schema to disk; regardless, it then converts the JSON representation
 into the final Jayvee format, sanitizing all names and writing the template file.
-Finally, control returns to the #abbr.a[GUI], which unlocks the user interface and completes the progress logs,
+Finally, control returns to the #abbr.a[CLI], which unlocks the user interface and completes the progress logs,
 signaling that the template generation cycle has concluded cleanly and transparently.
 
 An auxiliary evaluation script, test_pipeline_generation.py, supports batch testing and performance profiling. It ingests CSVs from a directory, invokes jv_template_generation.py as a subprocess, verifies generation of Jayvee templates, and executes them via the Jayvee #abbr.a[CLI] to produce SQLite outputs. Metrics such as execution time, return codes, and output file status are logged centrally. The script supports parameterization via #abbr.a[CLI] flags for parallelism (--parallel) and sub-sampling (--every-nth).
 
 
-== LLM Schema Inference
+== LLM-Based Schema Inference
 
 This section details the offline, Slurm-driven pipeline for using LLMs to infer CSV header rows at scale.
 
@@ -242,8 +241,8 @@ All logs are serialized to disk and grouped by model, making it easy to review t
 The overall evaluation process is illustrated by the sequence diagram below. It captures the orchestration between Slurm, the individual scripts, and the modular components of the schema inference workflow.
 
 #figure(
-  image("./SequenceDiagram_LLMInf.png", width: 143%),
-  caption: [Sequence Diagram – LLM Schema Inference Evaluation Pipeline],
+  image("./SequenceDiagram_LLMInf.png", width: 130%),
+  caption: [Sequence Diagram – LLM-Based Schema Inference Evaluation Pipeline],
 ) <sequence_diagram_llminf>
 
 The evaluation begins with the submission of a Slurm job array using the parallel_evaluation.sh script. Each array task selects one transformer model from a predefined list and runs the evaluate.py script in an isolated environment. This script reads all target CSV files, invokes find_header.py for each one via a subprocess, and compares the model’s prediction to the known ground truth. Results are written to model-specific JSON files inside the partial_results directory.

@@ -327,7 +327,7 @@ CLI --> User : display success
 @enduml
 
 
-title Sequence Diagram – LLM Schema Inference Evaluation Pipeline
+title Sequence Diagram – LLM-Based Schema Inference Evaluation Pipeline
 @startuml
 
 actor Slurm

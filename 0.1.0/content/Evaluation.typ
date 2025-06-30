@@ -42,28 +42,19 @@ extraction, interpretation, and final loading into a SQLite sink.
 Execution logs were captured, and the presence of valid SQLite outputs was programmatically verified.
 
 #figure(
-image("./Evaluation_Summary_TempGen.png", width: 80%),
+image("./AggregatedResults_TempGen.png", width: 80%),
 caption: [Evaluation Summary for Jayvee Template Generation],
 ) <eval_sum_tempgen>
+Over the course of 10,000 test cases executed across 10 workers, the Jayvee template generation system demonstrated flawless performance. Every pipeline completed successfully, yielding a 100.00% execution success rate. There were no empty SQLite outputs and no runtime errors encountered at any stage. These outcomes confirm that each generated pipeline was not only syntactically valid but also semantically executable from end to end.
 
-The results:
+In terms of performance, the system achieved an average generation time of 0.889 seconds per file, culminating in a total generation time of approximately 8,892.893 seconds—just under 2.5 hours for the entire batch. Execution followed a similarly consistent pattern, with each pipeline completing in an average of 10.076 seconds, adding up to a total execution time of 100,764.951 seconds, or roughly 28 hours overall.
 
-- 100% execution success rate across 10,000 pipelines
-- No empty SQLite outputs or runtime errors encountered
-- Average generation time per file: under 1 second
-- Total generation time for 10,000 templates: ~2.5 hours
 
-These results confirm the structural soundness of the Jayvee schema inference process.
-Although the full corpus did not contain highly noisy or malformed CSVs, the test still covered a broad
-range of consistent, real-world formats. The successful execution of each pipeline validates that
-the emitted templates are not only syntactically correct but semantically operable,
-highlighting the system’s readiness for scaled production deployment.
+These results underscore the structural soundness and semantic robustness of the Jayvee schema inference process. Despite the fact that the test corpus did not contain highly malformed or noisy CSVs, it did represent a wide range of structurally varied but valid real-world formats. The system's ability to synthesize executable pipelines from such diverse inputs, without manual intervention or post-processing, confirms its production-readiness.
 
-Execution success functioned as both a benchmark and a quality filter:
-any misalignment—such as broken headers, invalid types,
-or parsing failures—would have led to execution errors or incomplete database sinks.
-The absence of such issues affirms the generator’s ability to synthesize valid,
-well-formed pipelines from structurally sound inputs.
+Execution success in this context functioned not merely as a metric, but as a critical quality assurance mechanism. Any structural misalignment—be it malformed headers, mismatched types, or parsing inconsistencies—would have manifested as execution failures or empty database sinks. The complete absence of such issues across the full dataset affirms that the generator produces well-formed, type-safe, and operationally sound pipeline specifications from the outset.
+
+The Jayvee system, as evaluated here, proves capable of performing robust schema inference and template synthesis at scale. It requires no correction loops or fallback heuristics, offering a fully automated route from tabular input to structured pipeline deployment. This makes it a viable candidate for integration into larger ETL frameworks and DataOps environments, especially those that demand high throughput, strong correctness guarantees, and minimal human intervention.
 
 === Edge Cases in CSV Schema Inference
 
@@ -94,7 +85,7 @@ These edge-case tests, though limited in scope compared to the full 10,000 pipel
 demonstrate the system’s flexibility and provide a foundation for future enhancements
 in schema inference under non-ideal input conditions.
 
-== LLM Schema Inference Evaluation
+== LLM-Based Schema Inference
 
 The large-scale evaluation setup for header-row inference using transformer models under SLURM orchestration is detailed here.
 
@@ -172,14 +163,84 @@ models must interpret intent, context, and structure—skills central to robust 
 
 === Evaluation Results
 
-A synthetic benchmark of 10,000 structurally diverse CSV files was used to evaluate three transformer-based language models on their ability to correctly identify header rows. Each prediction was considered accurate only when it precisely matched the annotated ground truth. The benchmark deliberately included edge cases such as lengthy multi-line preambles, non-standard delimiters, multilingual comments, and hybrid metadata patterns to rigorously test the models’ semantic understanding.
+Due to persistent computational issues—including CUDA out-of-memory exceptions and
+unexpected timeouts introduced by parallel batch execution under SLURM—the
+full-scale evaluation across all 10,000 CSVs could not be completed.
+As a result, no definitive percentage-based accuracy scores are available at this time.
+Nevertheless, a qualitative review of a subset of successfully processed files yields important
+insights into model behavior, including strengths and recurring failure patterns.
 
-Performance across the three models revealed substantial variation, shaped by differences in parameter size, instruction tuning, and schema inference capabilities. The instruction-tuned DeepSeek-Coder model achieved the highest accuracy, with ~85% of headers identified correctly. It exhibited strong generalization across noisy and irregular file structures, showing resilience to comment-laden preambles and embedded metadata. In contrast, Qwen3-4B, a smaller model with more limited schema-specific fine-tuning, reached around 72–75% accuracy. While it performed reliably on simple or moderately obfuscated headers, its performance degraded when encountering files with complex metadata layering or pre-header unit annotations. Surprisingly, CodeLlama-7B-Instruct, despite having more parameters than Qwen3-4B, delivered less consistent results, hovering around 65–68% accuracy. It often prioritized superficial text features like capitalization or row length over semantic cues, and frequently misclassified visually dense rows without adequately interpreting their functional roles.
+Despite lacking quantitative aggregates, the structure and logging of the evaluation
+harness allowed for manual inspection of dozens of intermediate outputs.
+These example cases reveal how LLMs navigate noisy metadata, ambiguous preambles,
+and deceptive formatting—all of which are central to realistic schema inference scenarios.
 
-An in-depth error analysis revealed several common failure modes. Models frequently mistook rows containing unit descriptions—such as “All values in USD”—for actual headers, particularly when those lines were short, capitalized, and well-formatted. This tendency indicates an overreliance on surface-level heuristics in the absence of semantic understanding. Another recurring issue was the misidentification of document footers or introductory comments as header lines, pointing to the models’ limited ability to temporally contextualize structural elements within the typical progression of a CSV file. The inability to resolve multi-row headers further exposed a structural weakness: rather than aggregating schema information spread across adjacent lines, models typically fixated on a single row, leading to partial or incorrect extractions. Lastly, all three models demonstrated a strong bias toward visually regular patterns—favoring consistent delimiters, token length, and uppercase tokens—even when such rows carried no semantic weight as headers.
+=== Exemplary Model Outputs
 
-These patterns suggest that accurate schema inference remains a partially emergent capability among general-purpose LLMs. Instruction tuning—exemplified by the superior performance of DeepSeek-Coder—clearly enhances robustness and contextual understanding, but persistent failure modes underscore the absence of domain-specific inductive bias and the lack of hierarchical reasoning. Notably, the results also challenge the assumption that larger models inherently perform better on structural tasks; CodeLlama’s comparatively weak results demonstrate that parameter count without targeted training does not guarantee semantic precision.
+In one illustrative case, the model was prompted with a CSV that began with a brief metadata block followed by a clean, semicolon-delimited schema row:
 
-From a practical standpoint, these findings have direct implications for deploying LLMs in data ingestion and integration pipelines. In production environments, where files often contain noise, metadata, and domain-specific annotations, relying solely on LLM predictions without safeguards may lead to brittle performance. Incorporating fallback strategies—such as rule-based validation layers, confidence-based filtering, or hybrid pipelines combining symbolic and neural methods—could mitigate these risks. Additionally, fine-tuning on curated corpora of annotated, messy CSVs could further align model predictions with real-world schema patterns.
+#figure(
+image("./CSVExample_1.png", width: 100%),
+caption: [Example CSV 1],
+) <CSVExample_1>
 
-The experimental setup itself, grounded in synthetic data with controlled complexity and transparent, traceable evaluation criteria, provides a solid foundation for future benchmarking and iterative refinement. It not only demonstrates the current feasibility of LLM-based header detection but also delineates the performance ceiling and the kinds of architectural or training interventions that may be necessary to push it further.
+The model correctly identified the header as residing on line 4:
+
+#figure(
+image("./ModelResponse_1.png", width: 100%),
+caption: [Model Response for Example CSV 1],
+) <ModelResponse_1>
+
+This demonstrates the model’s ability to filter out boilerplate and recognize semantically
+relevant schema rows—even amid multilingual licensing text and comment-style prefixes.
+The clear structure and consistent formatting likely contributed to the model's confident
+and correct identification.
+Still, the model's response also contained some extraneous text, which is a common issue in LLM outputs.
+Although the model correctly identified the header row,
+it included additional commentary that was not part of the expected output
+format since it was instructed to strictly follow a specified json schema that
+was displayed in the three few shot examples before and also introduced int the beginning of the prompt.
+Still, the answer contained parsable JSON with the expected keys.
+
+
+A particularly revealing failure occurred with a file where preamble noise
+was interleaved with markers resembling structural delimiters:
+
+#figure(
+image("./CSVExample_2.png", width: 60%),
+caption: [Example CSV 2],
+) <CSVExample_2>
+
+In this case, the model erroneously
+selected the second line (---------------------------------------) as the header row:
+
+#figure(
+image("./ModelResponse_2.png", width: 100%),
+caption: [Model Response for Example CSV 2],
+) <ModelResponse_2>
+
+This result reflects a significant weakness: although the actual schema header (ID;Name;Industry;...)
+appears on line 4, the model was misled by contextual cues such as \# --- End of header ---,
+which appeared to indicate that the header immediately followed.
+In fact, these lines were merely decorative dividers or formatting noise—common in real-world data
+but potentially misinterpreted as delimiters of meaningful sections.
+
+The model's misjudgment here likely stems from its over-reliance on literal cue phrases
+and structural regularity. Phrases like “End of header” created a strong expectation
+that what follows must be the schema, even though no semantic content had yet appeared.
+This pattern illustrates how certain forms of pseudo-structure can bias model inference,
+especially when combined with visually uniform separators (e.g., dashes, hashes)
+that mimic human-readable section breaks.
+
+Such noise elements—while innocuous to humans—pose a substantial challenge
+to LLMs because they hijack superficial priors learned from documentation-style corpora.
+Rather than evaluating semantic alignment of row contents with a schema pattern,
+the model responded to syntactic decoration as if it carried programmatic significance.
+
+Even within this partially executed evaluation, the system exposed key differentiators
+in semantic precision, robustness to formatting noise, and reasoning fidelity
+across multiple LLM architectures.
+DeepSeek-Coder-Instruct stood out in its ability to filter through
+metadata noise and identify headers correctly.
+In contrast, smaller or less specialized models faltered on hybrid preambles or
+ambiguous structure cues—highlighting the semantic, rather than syntactic, nature of the task.
